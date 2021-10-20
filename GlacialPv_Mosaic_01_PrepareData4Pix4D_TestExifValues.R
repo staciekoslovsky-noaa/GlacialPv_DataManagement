@@ -23,7 +23,7 @@ install_pkg("tidyverse")
 
 # Run code -------------------------------------------------------
 # Set initial working directory 
-wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic_Roll0", sep = "/")
+wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic_Roll0+Offset", sep = "/")
 
 if (file.exists(wd) == TRUE) {
   unlink(wd, recursive = TRUE)
@@ -46,8 +46,7 @@ meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images
          ImagePath = ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
                              ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
                                     paste(image_path, flight, "right_view", image_name, sep = "/"))),
-         ins_roll_adj = ifelse(camera_view == 'C', ins_roll,
-                               ifelse(camera_view == 'L', ins_roll + offset_left, ins_roll + offset_right)),
+         ins_roll_adj = ifelse(camera_view == 'C', ins_roll, ifelse(camera_view == 'L', offset_left, offset_right)),
          lat_d = floor(ins_latitude),
          lat_m = floor((ins_latitude - lat_d) * 60), 
          lat_s = round((((ins_latitude - lat_d) * 60) - floor((ins_latitude - lat_d) * 60)) * 60), 
@@ -68,8 +67,7 @@ meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images
          GPSAltitude = ins_altitude,
          Yaw = ins_heading,
          Pitch = ifelse(ins_pitch < 0, ins_pitch + 360, ins_pitch),
-         Roll = 0) %>%
-         #Roll = ifelse(ins_roll_adj < 0, abs(ins_roll_adj), 360 - ins_roll_adj)) %>%
+         Roll = ifelse(ins_roll_adj < 0, abs(ins_roll_adj), 360 - ins_roll_adj)) %>%
   select(ImageSurveyID, ImagePath, SourceFile, FocalLength, DateTimeOriginal, SubSecTimeOriginal, GPSDateStamp, GPSTimeStamp, GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef, GPSAltitude, Yaw, Pitch, Roll)
 RPostgreSQL::dbDisconnect(con)
 rm(con)
