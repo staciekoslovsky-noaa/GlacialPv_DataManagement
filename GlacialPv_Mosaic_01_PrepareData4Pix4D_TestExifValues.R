@@ -74,7 +74,7 @@ rm(con)
 
 surveys <- unique(meta$ImageSurveyID)
 
-for (j in 1:2) {
+for (j in c(7, 18, 30, 35, 49, 54, 73)) {
   copy_project <- paste(wd, surveys[j], sep = "/")
   dir.create(copy_project)
   
