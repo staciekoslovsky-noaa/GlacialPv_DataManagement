@@ -5,7 +5,7 @@ survey_year <- 2020
 offset_center <- 0
 offset_left <- 21.5   # left view should have negative offset value
 offset_right <- -21.5 # right view should have positive offset value
-test_type <- "_ReadyForMosaic_Altitude_ft"
+test_type <- "_ReadyForMosaic_switchedRoll"
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
@@ -66,7 +66,7 @@ meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images
          GPSLatitudeRef = 'N',
          GPSLongitude = as.character(paste(long_d, long_m,  long_s, sep = " ")),
          GPSLongitudeRef = ifelse(ins_longitude < 0, "W", "E"),
-         GPSAltitude = ins_altitude * 3.28084,
+         GPSAltitude = ins_altitude,
          Yaw = ins_heading,
          Pitch = ifelse(ins_pitch < 0, ins_pitch + 360, ins_pitch),
          Roll = ifelse(ins_roll_adj < 0, abs(ins_roll_adj), 360 - ins_roll_adj)) %>%
@@ -76,7 +76,7 @@ rm(con)
 
 surveys <- unique(meta$ImageSurveyID)
 
-for (j in c(1, 7, 18, 30, 35, 49, 54, 73)) {
+for (j in c(7, 18, 30, 35, 49, 54, 73)) {
   copy_project <- paste(wd, surveys[j], sep = "/")
   dir.create(copy_project)
   
