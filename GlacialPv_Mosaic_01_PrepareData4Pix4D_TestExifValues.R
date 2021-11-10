@@ -3,8 +3,9 @@
 # STARTING VARIABLES (enter values as degrees)
 survey_year <- 2020
 offset_center <- 0
-offset_left <- -21.5   # left view should have negative offset value
-offset_right <- 21.5 # right view should have positive offset value
+offset_left <- 21.5   # left view should have negative offset value
+offset_right <- -21.5 # right view should have positive offset value
+test_type <- "_ReadyForMosaic_Altitude_ft"
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
@@ -23,7 +24,7 @@ install_pkg("tidyverse")
 
 # Run code -------------------------------------------------------
 # Set initial working directory 
-wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic_Roll0+Offset", sep = "/")
+wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, test_type, sep = "/")
 
 if (file.exists(wd) == TRUE) {
   unlink(wd, recursive = TRUE)
@@ -46,7 +47,8 @@ meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images
          ImagePath = ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
                              ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
                                     paste(image_path, flight, "right_view", image_name, sep = "/"))),
-         ins_roll_adj = ifelse(camera_view == 'C', ins_roll, ifelse(camera_view == 'L', offset_left, offset_right)),
+         ins_roll_adj = ifelse(camera_view == 'C', ins_roll,
+                               ifelse(camera_view == 'L', ins_roll + offset_left, ins_roll + offset_right)),
          lat_d = floor(ins_latitude),
          lat_m = floor((ins_latitude - lat_d) * 60), 
          lat_s = round((((ins_latitude - lat_d) * 60) - floor((ins_latitude - lat_d) * 60)) * 60), 
@@ -64,7 +66,7 @@ meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images
          GPSLatitudeRef = 'N',
          GPSLongitude = as.character(paste(long_d, long_m,  long_s, sep = " ")),
          GPSLongitudeRef = ifelse(ins_longitude < 0, "W", "E"),
-         GPSAltitude = ins_altitude,
+         GPSAltitude = ins_altitude * 3.28084,
          Yaw = ins_heading,
          Pitch = ifelse(ins_pitch < 0, ins_pitch + 360, ins_pitch),
          Roll = ifelse(ins_roll_adj < 0, abs(ins_roll_adj), 360 - ins_roll_adj)) %>%
@@ -74,7 +76,7 @@ rm(con)
 
 surveys <- unique(meta$ImageSurveyID)
 
-for (j in c(7, 18, 30, 35, 49, 54, 73)) {
+for (j in c(1, 7, 18, 30, 35, 49, 54, 73)) {
   copy_project <- paste(wd, surveys[j], sep = "/")
   dir.create(copy_project)
   
@@ -87,19 +89,19 @@ for (j in c(7, 18, 30, 35, 49, 54, 73)) {
   for (i in 1:nrow(images2process)){
     file.copy(images2process$ImagePath[i], paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"))
     
-    exiftool_cmd <- paste("C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/exiftool.exe -config C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/pix4d.config -overwrite_original -FocalLength=\"", meta$FocalLength[i], "\" ", 
-                          "-DateTimeOriginal=\"", meta$DateTimeOriginal[i], "\" ", 
-                          "-SubSecTimeOriginal=\"", meta$SubSecTimeOriginal[i], "\" ", 
-                          "-GPSDateStamp=\"", meta$GPSDateStamp[i], "\" ", 
-                          "-GPSTimeStamp=\"", meta$GPSTimeStamp[i], "\" ", 
-                          "-GPSLatitude=\"", meta$GPSLatitude[i], "\" ", 
-                          "-GPSLatitudeRef=\"", meta$GPSLatitudeRef[i], "\" ", 
-                          "-GPSLongitude=\"", meta$GPSLongitude[i], "\" ", 
-                          "-GPSLongitudeRef=\"", meta$GPSLongitudeRef[i], "\" ", 
-                          "-GPSAltitude=\"", meta$GPSAltitude[i], "\" ", 
-                          "-Camera:Yaw=", meta$Yaw[i], " ", 
-                          "-Camera:Pitch=", meta$Pitch[i], " ",
-                          "-Camera:Roll=", meta$Roll[i], " \"",
+    exiftool_cmd <- paste("C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/exiftool.exe -config C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/pix4d.config -overwrite_original -FocalLength=\"", images2process$FocalLength[i], "\" ", 
+                          "-DateTimeOriginal=\"", images2process$DateTimeOriginal[i], "\" ", 
+                          "-SubSecTimeOriginal=\"", images2process$SubSecTimeOriginal[i], "\" ", 
+                          "-GPSDateStamp=\"", images2process$GPSDateStamp[i], "\" ", 
+                          "-GPSTimeStamp=\"", images2process$GPSTimeStamp[i], "\" ", 
+                          "-GPSLatitude=\"", images2process$GPSLatitude[i], "\" ", 
+                          "-GPSLatitudeRef=\"", images2process$GPSLatitudeRef[i], "\" ", 
+                          "-GPSLongitude=\"", images2process$GPSLongitude[i], "\" ", 
+                          "-GPSLongitudeRef=\"", images2process$GPSLongitudeRef[i], "\" ", 
+                          "-GPSAltitude=\"", images2process$GPSAltitude[i], "\" ", 
+                          "-Camera:Yaw=", images2process$Yaw[i], " ", 
+                          "-Camera:Pitch=", images2process$Pitch[i], " ",
+                          "-Camera:Roll=", images2process$Roll[i], " \"",
                           paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"), "\"", sep= "")
     system(exiftool_cmd)
   }

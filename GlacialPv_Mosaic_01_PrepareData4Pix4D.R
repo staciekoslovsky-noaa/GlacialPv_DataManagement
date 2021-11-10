@@ -23,10 +23,10 @@ install_pkg("tidyverse")
 
 # Run code -------------------------------------------------------
 # Set initial working directory 
-wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic", sep = "/")
+wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic_switchedRoll", sep = "/")
 
 if (file.exists(wd) == TRUE) {
-  unlink(wd, recursive = TRUE)
+  #unlink(wd, recursive = TRUE)
 }
 
 dir.create(wd)
@@ -75,7 +75,7 @@ rm(con)
 
 surveys <- unique(meta$ImageSurveyID)
 
-for (j in 1:length(surveys)) {
+for (j in c(7, 18, 30, 35, 49, 54, 73)){#length(surveys)) {
   copy_project <- paste(wd, surveys[j], sep = "/")
   dir.create(copy_project)
   
@@ -88,19 +88,19 @@ for (j in 1:length(surveys)) {
   for (i in 1:nrow(images2process)){
     file.copy(images2process$ImagePath[i], paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"))
     
-    exiftool_cmd <- paste("C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/exiftool.exe -config C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/pix4d.config -overwrite_original -FocalLength=\"", meta$FocalLength[i], "\" ", 
-                          "-DateTimeOriginal=\"", meta$DateTimeOriginal[i], "\" ", 
-                          "-SubSecTimeOriginal=\"", meta$SubSecTimeOriginal[i], "\" ", 
-                          "-GPSDateStamp=\"", meta$GPSDateStamp[i], "\" ", 
-                          "-GPSTimeStamp=\"", meta$GPSTimeStamp[i], "\" ", 
-                          "-GPSLatitude=\"", meta$GPSLatitude[i], "\" ", 
-                          "-GPSLatitudeRef=\"", meta$GPSLatitudeRef[i], "\" ", 
-                          "-GPSLongitude=\"", meta$GPSLongitude[i], "\" ", 
-                          "-GPSLongitudeRef=\"", meta$GPSLongitudeRef[i], "\" ", 
-                          "-GPSAltitude=\"", meta$GPSAltitude[i], "\" ", 
-                          "-Camera:Yaw=", meta$Yaw[i], " ", 
-                          "-Camera:Pitch=", meta$Pitch[i], " ",
-                          "-Camera:Roll=", meta$Roll[i], " \"",
+    exiftool_cmd <- paste("C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/exiftool.exe -config C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/pix4d.config -overwrite_original -FocalLength=\"", images2process$FocalLength[i], "\" ", 
+                          "-DateTimeOriginal=\"", images2process$DateTimeOriginal[i], "\" ", 
+                          "-SubSecTimeOriginal=\"", images2process$SubSecTimeOriginal[i], "\" ", 
+                          "-GPSDateStamp=\"", images2process$GPSDateStamp[i], "\" ", 
+                          "-GPSTimeStamp=\"", images2process$GPSTimeStamp[i], "\" ", 
+                          "-GPSLatitude=\"", images2process$GPSLatitude[i], "\" ", 
+                          "-GPSLatitudeRef=\"", images2process$GPSLatitudeRef[i], "\" ", 
+                          "-GPSLongitude=\"", images2process$GPSLongitude[i], "\" ", 
+                          "-GPSLongitudeRef=\"", images2process$GPSLongitudeRef[i], "\" ", 
+                          "-GPSAltitude=\"", images2process$GPSAltitude[i], "\" ", 
+                          "-Camera:Yaw=", images2process$Yaw[i], " ", 
+                          "-Camera:Pitch=", images2process$Pitch[i], " ",
+                          "-Camera:Roll=", images2process$Roll[i], " \"",
                           paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"), "\"", sep= "")
     system(exiftool_cmd)
   }
