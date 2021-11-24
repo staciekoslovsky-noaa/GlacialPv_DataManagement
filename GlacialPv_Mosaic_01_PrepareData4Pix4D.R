@@ -3,8 +3,8 @@
 # STARTING VARIABLES (enter values as degrees)
 survey_year <- 2020
 offset_center <- 0
-offset_left <- -21.5   # left view should have negative offset value
-offset_right <- 21.5 # right view should have positive offset value
+offset_left <- 21.5   # left view should have positive offset value (after tests with Pix4D)
+offset_right <- -21.5 # right view should have negative offset value (after tests with Pix4D)
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
@@ -23,10 +23,10 @@ install_pkg("tidyverse")
 
 # Run code -------------------------------------------------------
 # Set initial working directory 
-wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic_switchedRoll", sep = "/")
+wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic", sep = "/")
 
 if (file.exists(wd) == TRUE) {
-  #unlink(wd, recursive = TRUE)
+  unlink(wd, recursive = TRUE)
 }
 
 dir.create(wd)
@@ -68,22 +68,24 @@ meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images
          GPSAltitude = ins_altitude,
          Yaw = ins_heading,
          Pitch = ifelse(ins_pitch < 0, ins_pitch + 360, ins_pitch),
-         Roll = ifelse(ins_roll_adj < 0, abs(ins_roll_adj), 360 - ins_roll_adj)) %>%
+         Roll = ifelse(ins_roll_adj < 0, abs(ins_roll_adj), 360 - ins_roll_adj)) 
+
+surveys <- meta %>%
+  select(ImageSurveyID, survey_id, survey_rep_f) %>%
+  distinct()
+
+meta <- meta %>%
   select(ImageSurveyID, ImagePath, SourceFile, FocalLength, DateTimeOriginal, SubSecTimeOriginal, GPSDateStamp, GPSTimeStamp, GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef, GPSAltitude, Yaw, Pitch, Roll)
-RPostgreSQL::dbDisconnect(con)
-rm(con)
 
-surveys <- unique(meta$ImageSurveyID)
-
-for (j in c(7, 18, 30, 35, 49, 54, 73)){#length(surveys)) {
-  copy_project <- paste(wd, surveys[j], sep = "/")
+for (j in nrow(surveys)) {
+  copy_project <- paste(wd, surveys$ImageSurveyID[j], sep = "/")
   dir.create(copy_project)
   
-  copy_path <- paste(wd, surveys[j], "01_Images", sep = "/")
+  copy_path <- paste(wd, surveys$ImageSurveyID[j], "01_Images", sep = "/")
   dir.create(copy_path)
   
   images2process <- meta %>%
-    filter(ImageSurveyID == surveys[j])
+    filter(ImageSurveyID == surveys$ImageSurveyID[j])
   
   for (i in 1:nrow(images2process)){
     file.copy(images2process$ImagePath[i], paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"))
@@ -104,4 +106,13 @@ for (j in c(7, 18, 30, 35, 49, 54, 73)){#length(surveys)) {
                           paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"), "\"", sep= "")
     system(exiftool_cmd)
   }
+  
+  RPostgreSQL::dbSendQuery(con, paste("UPDATE surv_pv_gla.tbl_flyovers f SET data_status_lku = \'D\' FROM surv_pv_gla.tbl_event e WHERE f.event_id = e.id AND e.survey_id = \'", 
+                                      surveys$survey_id[j], 
+                                      "\' AND f.survey_rep = ",
+                                      surveys$survey_rep_f[j],
+                                      sep = ''))
 }
+
+RPostgreSQL::dbDisconnect(con)
+rm(con)
