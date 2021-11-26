@@ -77,7 +77,7 @@ surveys <- meta %>%
 meta <- meta %>%
   select(ImageSurveyID, ImagePath, SourceFile, FocalLength, DateTimeOriginal, SubSecTimeOriginal, GPSDateStamp, GPSTimeStamp, GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef, GPSAltitude, Yaw, Pitch, Roll)
 
-for (j in nrow(surveys)) {
+for (j in 1:nrow(surveys)) {
   copy_project <- paste(wd, surveys$ImageSurveyID[j], sep = "/")
   dir.create(copy_project)
   
