@@ -26,7 +26,7 @@ install_pkg("tidyverse")
 wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForMosaic", sep = "/")
 
 if (file.exists(wd) == TRUE) {
-  unlink(wd, recursive = TRUE)
+  # unlink(wd, recursive = TRUE)
 }
 
 dir.create(wd)
