@@ -88,6 +88,8 @@ for (j in 1:nrow(surveys)) {
     filter(ImageSurveyID == surveys$ImageSurveyID[j])
   
   for (i in 1:nrow(images2process)){
+    RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.lku_site")
+    
     file.copy(images2process$ImagePath[i], paste(copy_path, basename(images2process$ImagePath[i]), sep = "/"))
     
     exiftool_cmd <- paste("C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/exiftool.exe -config C:/Users/stacie.hardy/Work/Work/PortablePrograms/exiftool-12.18/pix4d.config -overwrite_original -FocalLength=\"", images2process$FocalLength[i], "\" ", 
