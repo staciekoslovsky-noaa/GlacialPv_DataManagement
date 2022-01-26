@@ -48,9 +48,6 @@ surveys <- meta %>%
   distinct()
 
 for (j in 1:nrow(surveys)) {
-  copy_project <- paste(wd, surveys$image_survey_id[j], sep = "/")
-  dir.create(copy_project)
-  
   copy_path <- paste(wd, surveys$image_survey_id[j], sep = "/")
   dir.create(copy_path)
   
@@ -75,25 +72,46 @@ for (j in 1:nrow(surveys)) {
   image_list_paired <- image_list_ir %>%
     full_join(image_list_rgb, by = c("flight", "camera_view", "dt")) 
   
-  # Create image list of all non-NUC IR images with RGB images -- one for each C, L, R
+  # Create image list of all non-NUC IR images with RGB images --  export both for each C, L, R
   image_list_irwithRGB <- image_list_paired %>%
     filter(!is.na(rgb_image_name) & ir_nuc == "N" & !is.na(ir_image_name)) %>%
     select(flight, camera_view, dt, ir_image_name, ir_nuc, ir_image_path)
+  
+  for (i in c("C", "L", "R")) {
+    camera_sub <- i
+    
+    image_list_irwithRGB_sub <- image_list_irwithRGB %>%
+      filter(camera_view == camera_sub) %>%
+      select(ir_image_path)
+    
+    write.table(image_list_irwithRGB_sub, paste(copy_path, "/", surveys$image_survey_id[j], "_", camera_sub, "_irWithRGB_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
+  }
   
   image_list_rgbWithIR <- image_list_paired %>%
     filter(!is.na(rgb_image_name) & ir_nuc == "N" & !is.na(ir_image_name)) %>%
     select(flight, camera_view, dt, rgb_image_name, rgb_image_path)
   
-  # Create image list of all RGB images where corresponding IR image is NUC -- one for each C, L, R
+  for (i in c("C", "L", "R")) {
+    camera_sub <- i
+    
+    image_list_rgbWithIR_sub <- image_list_rgbWithIR %>%
+      filter(camera_view == camera_sub) %>%
+      select(rgb_image_path)
+    
+    write.table(image_list_rgbWithIR_sub, paste(copy_path, "/", surveys$image_survey_id[j], "_", camera_sub, "_rgbWithIR_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
+  }
+  
+  # Create image list of all RGB images where corresponding IR image is NUC or missing -- one file for all images
   image_list_rgbNoIR <- image_list_paired %>%
     filter(is.na(ir_image_name) | ir_nuc == "Y") %>%
-    select(flight, camera_view, dt, rgb_image_name, rgb_image_path) 
+    #select(flight, camera_view, dt, rgb_image_name, rgb_image_path)
+    select(rgb_image_path)
+  write.table(image_list_rgbNoIR, paste(copy_path, "/", surveys$image_survey_id[j], "_all_rgbWithoutIR_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   # Finish processing RGB image list
   image_list_rgb <- image_list_rgb %>%
     select(rgb_image_path)
-  
-  # Export image lists
+  write.table(image_list_rgb, paste(copy_path, "/", surveys$image_survey_id[j], "_all_rgb_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   # Update DB to indicate data have been processed
   RPostgreSQL::dbSendQuery(con, paste("UPDATE surv_pv_gla.tbl_flyovers f SET data_status_lku = \'V\' FROM surv_pv_gla.tbl_event e WHERE f.event_id = e.id AND e.survey_id = \'", 
