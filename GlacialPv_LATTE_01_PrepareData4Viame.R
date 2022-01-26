@@ -39,50 +39,63 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
 
 meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images_4processing_latte where survey_method_lku = \'L\' and survey_year::integer = ", survey_year,  sep = "")) %>%
-  mutate(ImageSurveyID = image_survey_id,
-         ImagePath = ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
+  mutate(image_path = ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
                              ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
                                     paste(image_path, flight, "right_view", image_name, sep = "/")))) 
 
 surveys <- meta %>%
-  select(ImageSurveyID, survey_id, survey_rep_f) %>%
+  select(image_survey_id, survey_id, survey_rep_f) %>%
   distinct()
 
 for (j in 1:nrow(surveys)) {
-  copy_project <- paste(wd, surveys$ImageSurveyID[j], sep = "/")
+  copy_project <- paste(wd, surveys$image_survey_id[j], sep = "/")
   dir.create(copy_project)
   
-  copy_path <- paste(wd, surveys$ImageSurveyID[j], sep = "/")
+  copy_path <- paste(wd, surveys$image_survey_id[j], sep = "/")
   dir.create(copy_path)
   
   images2process <- meta %>%
-    filter(ImageSurveyID == surveys$ImageSurveyID[j]) 
+    filter(image_survey_id == surveys$image_survey_id[j]) 
   
-  # Create image list of all RGB images -- one for each C, L, R
-  image_list_rgbOnly <- images2process %>%
+  # Create image list of all RGB images -- all will be reviewed without IR images -- one file for all images
+  image_list_rgb <- images2process %>%
     filter(image_type == 'rgb_image') %>%
-    mutate(rgb_image_name = image_name) %>%
-    select(flight, camera_view, dt, rgb_image_name)
+    mutate(rgb_image_name = image_name,
+           rgb_image_path = image_path) %>%
+    select(flight, camera_view, dt, rgb_image_name, rgb_image_path)
   
-  # Create image list of all IR images
-  image_list_irOnly <- images2process %>%
+  # Create image list of all IR images -- just a starting point for other lists
+  image_list_ir <- images2process %>%
     filter(image_type == 'ir_image') %>%
-    mutate(ir_image_name = image_name) %>%
-    select(flight, camera_view, dt, ir_image_name, ir_nuc)
+    mutate(ir_image_name = image_name,
+           ir_image_path = image_path) %>%
+    select(flight, camera_view, dt, ir_image_name, ir_nuc, ir_image_path) 
   
-  # Create image list of all RGB images where corresponding IR image is NUC
-  image_list_rgbWhereIRnuc <- image_list_rgbOnly %>%
-    full_join(image_list_irOnly, by = C("flight", "camera_view", "dt"))
-    filter(image_type == 'rgb_image' & ir_nuc == 'Y')
+  # Create image list of all paired images -- just a starting point for other lists
+  image_list_paired <- image_list_ir %>%
+    full_join(image_list_rgb, by = c("flight", "camera_view", "dt")) 
   
-  # Create image list of all RGB images where corresponding IR image is not NUC
-  image_list_rgbWhereIRnotNUC <- images2process %>%
-    filter(image_type == 'rgb_image'& ir_nuc == 'N')
+  # Create image list of all non-NUC IR images with RGB images -- one for each C, L, R
+  image_list_irwithRGB <- image_list_paired %>%
+    filter(!is.na(rgb_image_name) & ir_nuc == "N" & !is.na(ir_image_name)) %>%
+    select(flight, camera_view, dt, ir_image_name, ir_nuc, ir_image_path)
   
-  # Create image list of all non-NUC IR images
-  image_list_irOnly <- images2process %>%
-    filter(image_type == 'ir_image' & ir_nuc == 'N')
+  image_list_rgbWithIR <- image_list_paired %>%
+    filter(!is.na(rgb_image_name) & ir_nuc == "N" & !is.na(ir_image_name)) %>%
+    select(flight, camera_view, dt, rgb_image_name, rgb_image_path)
   
+  # Create image list of all RGB images where corresponding IR image is NUC -- one for each C, L, R
+  image_list_rgbNoIR <- image_list_paired %>%
+    filter(is.na(ir_image_name) | ir_nuc == "Y") %>%
+    select(flight, camera_view, dt, rgb_image_name, rgb_image_path) 
+  
+  # Finish processing RGB image list
+  image_list_rgb <- image_list_rgb %>%
+    select(rgb_image_path)
+  
+  # Export image lists
+  
+  # Update DB to indicate data have been processed
   RPostgreSQL::dbSendQuery(con, paste("UPDATE surv_pv_gla.tbl_flyovers f SET data_status_lku = \'V\' FROM surv_pv_gla.tbl_event e WHERE f.event_id = e.id AND e.survey_id = \'", 
                                       surveys$survey_id[j], 
                                       "\' AND f.survey_rep = ",
