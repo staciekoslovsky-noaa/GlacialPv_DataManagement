@@ -43,9 +43,11 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
 
 meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images_4processing_mosaic where (survey_method_lku = \'M\' or survey_method_lku = \'T\') and survey_year::integer = ", survey_year,  sep = "")) %>%
   mutate(ImageSurveyID = image_survey_id,
-         ImagePath = ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
-                             ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
-                                    paste(image_path, flight, "right_view", image_name, sep = "/"))),
+         ImagePath = image_dir 
+                     #ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
+                     #        ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
+                     #               paste(image_path, flight, "right_view", image_name, sep = "/")))
+            ,
          ins_roll_adj = ifelse(camera_view == 'C', ins_roll,
                                ifelse(camera_view == 'L', ins_roll + offset_left, ins_roll + offset_right)),
          lat_d = floor(ins_latitude),

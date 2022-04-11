@@ -39,9 +39,11 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
 
 meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images_4processing_latte where survey_method_lku = \'L\' and survey_year::integer = ", survey_year,  sep = "")) %>%
-  mutate(image_path = ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
-                             ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
-                                    paste(image_path, flight, "right_view", image_name, sep = "/")))) 
+  mutate(image_path = image_dir
+         #ifelse(camera_view == 'C', paste(image_path, flight, "center_view", image_name, sep = "/"),
+                      #       ifelse(camera_view == 'L', paste(image_path, flight, "left_view", image_name, sep = "/"), 
+                      #              paste(image_path, flight, "right_view", image_name, sep = "/")))
+         ) 
 
 surveys <- meta %>%
   select(image_survey_id, survey_id, survey_rep_f) %>%
