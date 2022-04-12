@@ -62,6 +62,7 @@ for (i in 1:length(years)){
   meta2DB <- meta2DB[which(meta2DB == "test"), ]
   
   for (j in 1:nrow(image_dir)){
+    RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.geo_glaciers LIMIT 1")
     files <- list.files(image_dir$camera_dir[i], full.names = FALSE, recursive = FALSE)
     files <- data.frame(image_name = files[which(startsWith(files, paste("glacial_", years[i], sep = "")) == TRUE)], stringsAsFactors = FALSE)
     
@@ -95,11 +96,13 @@ for (i in 1:length(years)){
   }
   
   colnames(meta2DB) <- gsub("\\.", "_", colnames(meta2DB))
+  meta2DB$project_id <- paste("glacial_", years[i], sep = "")
   
   images2DB$flight <- sapply(strsplit(images2DB$image_name, "_"), function(x) x[[3]]) 
   images2DB$camera_view <- sapply(strsplit(images2DB$image_name, "_"), function(x) x[[4]])
   images2DB$ir_nuc <- NA
   images2DB$rgb_manualreview <- NA
+  images2DB$project_id <- paste("glacial_", years[i], sep = "")
   
   # Clean up known issues in data
   meta2DB$effort <- ifelse(years[i] == 2020 & meta2DB$effort == 'TEST' & meta2DB$flight == 'fl01', 'ON', meta2DB$effort)
@@ -134,4 +137,5 @@ for (i in 1:length(years)){
 
 # Disconnect for database and delete unnecessary variables ----------------------------
 RPostgreSQL::dbDisconnect(con)
-rm(con, df, dat, i, sql, sql1, sql2)
+rm(con, df, dat, i, #sql, sql1,
+   sql2)
