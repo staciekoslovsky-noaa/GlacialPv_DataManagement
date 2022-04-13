@@ -79,7 +79,7 @@ for (i in 1:length(years)){
     meta <- files[which(files$image_type == "meta.json"), ]
     if (nrow(meta) > 1) {
       for (k in 1:nrow(meta)){
-        meta_file <- paste(image_dir$camera_dir[i], meta$image_name[j], sep = "/")
+        meta_file <- paste(image_dir$camera_dir[i], meta$image_name[k], sep = "/")
         metaJ <- data.frame(rjson::fromJSON(paste(readLines(meta_file), collapse="")), stringsAsFactors = FALSE)
         metaJ$meta_file <- basename(meta_file)
         metaJ$dt <- paste(sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[5]]), sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[6]]), sep = "_") 
@@ -105,10 +105,12 @@ for (i in 1:length(years)){
   images2DB$project_id <- paste("glacial_", years[i], sep = "")
   
   # Clean up known issues in data
-  meta2DB$effort <- ifelse(years[i] == 2020 & meta2DB$effort == 'TEST' & meta2DB$flight == 'fl01', 'ON', meta2DB$effort)
-  meta2DB$effort <- ifelse(years[i] == 2020 & meta2DB$dt <= '20200902_002000' & meta2DB$flight == 'fl01', 'OFF', meta2DB$effort)
-  meta2DB$effort <- ifelse(years[i] == 2020 & meta2DB$dt == '20200902_011733.748910' & meta2DB$flight == 'fl01', 'ON', meta2DB$effort)
-  meta2DB$effort <- ifelse(years[i] == 2020 & meta2DB$dt < '20200904_001000' & meta2DB$flight == 'fl03', 'OFF', meta2DB$effort)
+  if (years[i] == 2020){
+    meta2DB$effort <- ifelse(meta2DB$effort == 'TEST' & meta2DB$flight == 'fl01', 'ON', meta2DB$effort)
+    meta2DB$effort <- ifelse(meta2DB$dt <= '20200902_002000' & meta2DB$flight == 'fl01', 'OFF', meta2DB$effort)
+    meta2DB$effort <- ifelse(meta2DB$dt == '20200902_011733.748910' & meta2DB$flight == 'fl01', 'ON', meta2DB$effort)
+    meta2DB$effort <- ifelse(meta2DB$dt < '20200904_001000' & meta2DB$flight == 'fl03', 'OFF', meta2DB$effort)
+  }
   
   # Assign survey ID to flight segments
   meta2DB$survey_id <- 'do_not_use'
