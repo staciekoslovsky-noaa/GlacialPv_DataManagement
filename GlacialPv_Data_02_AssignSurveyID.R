@@ -132,6 +132,9 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 #### 2021 data
 
 
+#### Update any remaining data
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'do_not_use\' WHERE survey_id IS NULL") 
+
 # Disconnect for database and delete unnecessary variables ----------------------------
 RPostgreSQL::dbDisconnect(con)
 rm(con)
