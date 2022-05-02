@@ -63,7 +63,7 @@ for (i in 1:length(years)){
   
   for (j in 1:nrow(image_dir)){
     RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.geo_glaciers LIMIT 1")
-    files <- list.files(image_dir$camera_dir[i], full.names = FALSE, recursive = FALSE)
+    files <- list.files(image_dir$camera_dir[j], full.names = FALSE, recursive = FALSE)
     files <- data.frame(image_name = files[which(startsWith(files, paste("glacial_", years[i], sep = "")) == TRUE)], stringsAsFactors = FALSE)
     
     files$dt <- paste(sapply(strsplit(files$image_name, "_"), function(x) x[[5]]), sapply(strsplit(files$image_name, "_"), function(x) x[[6]]), sep = "_")
@@ -71,7 +71,7 @@ for (i in 1:length(years)){
                                ifelse(grepl("ir", files$image_name) == TRUE, "ir_image",
                                       ifelse(grepl("uv", files$image_name) == TRUE, "uv_image", 
                                              ifelse(grepl("meta", files$image_name) == TRUE, "meta.json", "Unknown"))))
-    files$image_dir <- image_dir$camera_dir[i]
+    files$image_dir <- image_dir$camera_dir[j]
     
     images <- files[which(grepl("image", files$image_type)), ]
     images2DB <- rbind(images2DB, images)
@@ -79,7 +79,7 @@ for (i in 1:length(years)){
     meta <- files[which(files$image_type == "meta.json"), ]
     if (nrow(meta) > 1) {
       for (k in 1:nrow(meta)){
-        meta_file <- paste(image_dir$camera_dir[i], meta$image_name[k], sep = "/")
+        meta_file <- paste(image_dir$camera_dir[j], meta$image_name[k], sep = "/")
         metaJ <- data.frame(rjson::fromJSON(paste(readLines(meta_file), collapse="")), stringsAsFactors = FALSE)
         metaJ$meta_file <- basename(meta_file)
         metaJ$dt <- paste(sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[5]]), sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[6]]), sep = "_") 
@@ -121,17 +121,17 @@ for (i in 1:length(years)){
   dat <- c("tbl_images", "geo_images_meta")
   
   # Push data to pepgeo database and process data to spatial datasets where appropriate
-  for (i in 1:length(dat)){
-    if (dat[i] == "geo_images_meta") {
-     # RPostgreSQL::dbSendQuery(con, paste("ALTER TABLE surv_pv_gla.", dat[i], " DROP COLUMN geom", sep = ""))
+  for (m in 1:length(dat)){
+    if (dat[m] == "geo_images_meta") {
+    # RPostgreSQL::dbSendQuery(con, paste("ALTER TABLE surv_pv_gla.", dat[i], " DROP COLUMN geom", sep = ""))
     }
     
-    RPostgreSQL::dbWriteTable(con, c("surv_pv_gla", dat[i]), data.frame(df[i]), append = TRUE, row.names = FALSE)
+    RPostgreSQL::dbWriteTable(con, c("surv_pv_gla", dat[m]), data.frame(df[m]), append = TRUE, row.names = FALSE)
     
-    if (dat[i] == "geo_images_meta") {
-      #sql1 <- paste("ALTER TABLE surv_pv_gla.", dat[i], " ADD COLUMN geom geometry(POINT, 4326)", sep = "")
-      sql2 <- paste("UPDATE surv_pv_gla.", dat[i], " SET geom = ST_SetSRID(ST_MakePoint(ins_longitude, ins_latitude), 4326)", sep = "")
-      #RPostgreSQL::dbSendQuery(con, sql1)
+    if (dat[m] == "geo_images_meta") {
+     # sql1 <- paste("ALTER TABLE surv_pv_gla.", dat[m], " ADD COLUMN geom geometry(POINT, 4326)", sep = "")
+      sql2 <- paste("UPDATE surv_pv_gla.", dat[m], " SET geom = ST_SetSRID(ST_MakePoint(ins_longitude, ins_latitude), 4326)", sep = "")
+     # RPostgreSQL::dbSendQuery(con, sql1)
       RPostgreSQL::dbSendQuery(con, sql2)
     }
   }
