@@ -22,7 +22,7 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               dbname = Sys.getenv("pep_db"), 
                               host = Sys.getenv("pep_ip"), 
                               user = Sys.getenv("pep_admin"), 
-                              rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
+                              password = Sys.getenv("admin_pw"))
 
 # Assign survey ID to flight segments
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = NULL")
@@ -130,6 +130,33 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'do_not_use\' WHERE dt >= \'20200901_000000\' AND dt <= \'20200913_235959\' AND survey_id IS NULL") 
 
 #### 2021 data
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy_20210829_sample_1'\ WHERE flight = \'fl11\' AND dt >= \'20210829_211500\' AND dt <= \'20210829_221459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20210829_sample_1'\ WHERE flight = \'fl11\' AND dt >= \'20210829_225500\' AND dt <= \'20210829_233859\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi_20210830_fullmosaic_1'\ WHERE flight = \'fl13\' AND dt >= \'20210830_212200\' AND dt <= \'20210830_212859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi_20210830_fullmosaic_2'\ WHERE flight = \'fl13\' AND dt >= \'20210830_213100\' AND dt <= \'20210830_213759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi_20210830_fullmosaic_3'\ WHERE flight = \'fl13\' AND dt >= \'20210830_213900\' AND dt <= \'20210830_214659\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210830_fullmosaic_1'\ WHERE flight = \'fl14\' AND dt >= \'20210831_000700\' AND dt <= \'20210831_000959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210830_fullmosaic_2'\ WHERE flight = \'fl14\' AND dt >= \'20210831_001200\' AND dt <= \'20210831_001559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210830_fullmosaic_3'\ WHERE flight = \'fl14\' AND dt >= \'20210831_001800\' AND dt <= \'20210831_002059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210830_fullmosaic_1'\ WHERE flight = \'fl14\' AND dt >= \'20210831_003600\' AND dt <= \'20210831_003959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210830_fullmosaic_2'\ WHERE flight = \'fl14\' AND dt >= \'20210831_004200\' AND dt <= \'20210831_004559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210830_fullmosaic_3'\ WHERE flight = \'fl14\' AND dt >= \'20210831_004800\' AND dt <= \'20210831_004959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210830_fullmosaic_4'\ WHERE flight = \'fl14\' AND dt >= \'20210831_005400\' AND dt <= \'20210831_005659\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy_20210831_sample_1'\ WHERE flight = \'fl15\' AND dt >= \'20210831_220700\' AND dt <= \'20210831_232859\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte_20210901_targetedmosaic_1'\ WHERE flight = \'fl16\' AND dt >= \'20210901_222800\' AND dt <= \'20210901_223059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte_20210901_targetedmosaic_2'\ WHERE flight = \'fl16\' AND dt >= \'20210901_223300\' AND dt <= \'20210901_223559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte_20210901_targetedmosaic_3'\ WHERE flight = \'fl16\' AND dt >= \'20210901_223600\' AND dt <= \'20210901_223859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210901_targetedmosaic_1'\ WHERE flight = \'fl16\' AND dt >= \'20210901_231400\' AND dt <= \'20210901_231659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210901_targetedmosaic_2'\ WHERE flight = \'fl16\' AND dt >= \'20210901_231800\' AND dt <= \'20210901_232059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210901_targetedmosaic_3'\ WHERE flight = \'fl16\' AND dt >= \'20210901_232400\' AND dt <= \'20210901_232659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott_20210901_fullmosaic_1'\ WHERE flight = \'fl16\' AND dt >= \'20210901_232900\' AND dt <= \'20210901_233659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210901_targetedmosaic_1'\ WHERE flight = \'fl16\' AND dt >= \'20210901_235300\' AND dt <= \'20210901_235559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210901_targetedmosaic_2'\ WHERE flight = \'fl16\' AND dt >= \'20210901_235600\' AND dt <= \'20210901_235759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210901_fullmosaic_1'\ WHERE flight = \'fl16\' AND dt >= \'20210902_000100\' AND dt <= \'20210902_000559\' AND effort = \'ON\'")
 
 
 #### Update any remaining data
