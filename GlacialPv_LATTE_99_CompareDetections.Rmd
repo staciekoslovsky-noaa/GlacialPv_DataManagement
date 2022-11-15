@@ -1,6 +1,6 @@
 ---
 title: "LATTE Methods Comparison"
-# author: "Stacie Hardy"
+author: "Stacie Hardy"
 date: "Date Created: `r format(Sys.time(), '%m/%d/%Y')`"
 output: pdf_document
 
@@ -8,7 +8,7 @@ knit: (function(inputFile, encoding) {
   rmarkdown::render(
     inputFile, 
     encoding = encoding, 
-    output_file = file.path(dirname(inputFile), 'LATTE_Evaluation_20221107.pdf'))
+    output_file = file.path(dirname(inputFile), 'LATTE_Evaluation_20221114.pdf'))
   })
 ---
 
@@ -27,127 +27,178 @@ install_pkg <- function(x)
   }
 
 merge_and_intersect <- function(data1, data2) {
-var1 <- deparse(substitute(data1))
-var2 <- deparse(substitute(data2))
-
-data <- data1 %>%
-  full_join (data2, by = setNames(paste0(var2, "_image_name"), paste0(var1, "_image_name"))) %>%
-  mutate(image_name = ifelse(
-    is.na(!!as.name(paste0(var1, "_image_name"))), 
-    !!as.name(paste0(var2, "_image_name")), 
-    !!as.name(paste0(var1, "_image_name")))) %>%
-  mutate(intersect_LR = ifelse(!!as.name(paste0(var1, "_bound_right")) < !!as.name(paste0(var2, "_bound_left")) |
-                                 !!as.name(paste0(var1, "_bound_left")) > !!as.name(paste0(var2, "_bound_right")), "no", "yes"),
-         intersect_TB = ifelse(!!as.name(paste0(var1, "_bound_top")) > !!as.name(paste0(var2, "_bound_bottom")) |
-                                 !!as.name(paste0(var1, "_bound_bottom")) < !!as.name(paste0(var2, "_bound_top")), "no", "yes"))
-
-intersecting <- data %>%
-  filter(intersect_LR == "yes" & intersect_TB == "yes") %>%
-  mutate(distance = sqrt(
-    ((!!as.name(paste0(var1, "_average_x")) - !!as.name(paste0(var2, "_average_x"))) ^ 2) + 
-      ((!!as.name(paste0(var1, "_average_y")) - !!as.name(paste0(var2, "_average_y"))) ^ 2)) ) %>%
-  group_by(image_name, !!as.name(paste0(var2, "_id"))) %>%
-  slice(which.min(distance)) %>%
-  filter(distance < 50) %>%
-  select(image_name, paste0(var1, "_id"), paste0(var2, "_id"), distance) %>%
-  ungroup()
+  var1 <- deparse(substitute(data1))
+  var2 <- deparse(substitute(data2))
+  
+  data <- data1 %>%
+    full_join (data2, by = setNames(paste0(var2, "_image_name"), paste0(var1, "_image_name"))) %>%
+    mutate(image_name = ifelse(
+      is.na(!!as.name(paste0(var1, "_image_name"))), 
+      !!as.name(paste0(var2, "_image_name")), 
+      !!as.name(paste0(var1, "_image_name")))) %>%
+    mutate(intersect_LR = ifelse(!!as.name(paste0(var1, "_bound_right")) < !!as.name(paste0(var2, "_bound_left")) |
+                                   !!as.name(paste0(var1, "_bound_left")) > !!as.name(paste0(var2, "_bound_right")), "no", "yes"),
+           intersect_TB = ifelse(!!as.name(paste0(var1, "_bound_top")) > !!as.name(paste0(var2, "_bound_bottom")) |
+                                   !!as.name(paste0(var1, "_bound_bottom")) < !!as.name(paste0(var2, "_bound_top")), "no", "yes"))
+  
+  intersecting <- data %>%
+    filter(intersect_LR == "yes" & intersect_TB == "yes") %>%
+    mutate(distance = sqrt(
+      ((!!as.name(paste0(var1, "_average_x")) - !!as.name(paste0(var2, "_average_x"))) ^ 2) + 
+        ((!!as.name(paste0(var1, "_average_y")) - !!as.name(paste0(var2, "_average_y"))) ^ 2)) ) %>%
+    group_by(image_name, !!as.name(paste0(var2, "_id"))) %>%
+    slice(which.min(distance)) %>%
+    filter(distance < 50) %>%
+    select(image_name, paste0(var1, "_id"), paste0(var2, "_id"), distance) %>%
+    ungroup()
 }
 
-process_data_by_site <- function(survey_id, file_folder,
-                                 file_ir2rgb_ir_model_C, file_ir2rgb_ir_model_L, file_ir2rgb_ir_model_R,
-                                 file_ir2rgb_rgb_model_C, file_ir2rgb_rgb_model_L, file_ir2rgb_rgb_model_R,
-                                 file_allrgb_manual,
-                                 file_ir2rgb_manual_C, file_ir2rgb_manual_L, file_ir2rgb_manual_R) {
-# Process data
-setwd(file_folder)
+process_mnC <- function(file_folder, file_allrgb_manual) {
+  mnC <- read.csv(paste(file_folder, file_allrgb_manual, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                              "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
+    data.frame(stringsAsFactors = FALSE) %>%
+    mutate(image_name = basename(image_name)) %>%
+    filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal") %>%
+    select(detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
+    mutate(average_x = (bound_left + bound_right)/2,
+           average_y = (bound_top + bound_bottom)/2) %>%
+    rename_with( ~ paste0("mnC_", .x))
+}
+
+process_mnT <- function(file_folder, file_ir2rgb_manual_C, file_ir2rgb_manual_L, file_ir2rgb_manual_R) {
+  mnT <- read.csv(paste(file_folder, file_ir2rgb_manual_C, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                              "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
+    rbind(read.csv(paste(file_folder, file_ir2rgb_manual_L, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                   col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                                 "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
+    rbind(read.csv(paste(file_folder, file_ir2rgb_manual_R, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                   col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                                 "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
+    data.frame(stringsAsFactors = FALSE) %>%
+    mutate(image_name = basename(image_name)) %>%
+    filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal" | detection_type ==
+             "harbor_seal_partial") %>% #| detection_type == "harbor_seal_offThermal" |  detection_type == "off_ir") %>%
+    select(detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
+    mutate(average_x = (bound_left + bound_right)/2,
+           average_y = (bound_top + bound_bottom)/2) %>%
+    rename_with( ~ paste0("mnT_", .x))
+}
+
+process_mdC <- function(file_folder, file_ir2rgb_rgb_model_C, file_ir2rgb_rgb_model_L, file_ir2rgb_rgb_model_R) {
+  mdC <- read.csv(paste(file_folder, file_ir2rgb_rgb_model_C, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                            "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
+    rbind(read.csv(paste(file_folder, file_ir2rgb_rgb_model_L, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                   col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                                 "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
+    rbind(read.csv(paste(file_folder, file_ir2rgb_rgb_model_R, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                   col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                                 "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
+    data.frame(stringsAsFactors = FALSE) %>%
+    mutate(image_name = basename(image_name)) %>%
+    filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal") %>%
+    select(detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
+    mutate(average_x = (bound_left + bound_right)/2,
+           average_y = (bound_top + bound_bottom)/2) %>%
+    rename_with( ~ paste0("mdC_", .x))
+}
+
+process_mdT <- function(file_folder, file_ir2rgb_ir_model_C, file_ir2rgb_ir_model_L, file_ir2rgb_ir_model_R) {
+  mdT <- read.csv(paste(file_folder, file_ir2rgb_ir_model_C, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                              "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
+    rbind(read.csv(paste(file_folder, file_ir2rgb_ir_model_L, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                   col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                                 "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
+    rbind(read.csv(paste(file_folder, file_ir2rgb_ir_model_R, sep = "/"), skip = 2, header = FALSE, stringsAsFactors = FALSE, 
+                   col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
+                                 "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
+    data.frame(stringsAsFactors = FALSE) %>%
+    mutate(image_name = basename(image_name)) %>%
+    filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal") %>%
+    select(detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
+    mutate(average_x = (bound_left + bound_right)/2,
+           average_y = (bound_top + bound_bottom)/2) %>%
+    rename_with( ~ paste0("mdT_", .x))
+}
+
+# Install libraries ----------------------------------------------
+install_pkg("tidyverse")
+install_pkg("RPostgreSQL")
+install_pkg("RColorBrewer")
+install_pkg("ggbreak")
+
+# Get unprocessed RGB images
 con <- RPostgreSQL::dbConnect(PostgreSQL(), 
                               dbname = Sys.getenv("pep_db"), 
                               host = Sys.getenv("pep_ip"), 
                               user = Sys.getenv("pep_admin"), 
                               password = Sys.getenv("admin_pw"))
 
-# Get NUC images
-unprocessed_rgb <- RPostgreSQL::dbGetQuery(con, paste("SELECT image_name FROM surv_pv_gla.tbl_images_4processing_latte WHERE image_survey_id = \'",
-                                                      survey_id,
-                                                      "\' AND image_type = \'rgb_image\' AND
+unprocessed_rgb <- RPostgreSQL::dbGetQuery(con, paste("SELECT image_name FROM surv_pv_gla.tbl_images_4processing_latte WHERE image_survey_id = \'columbia_20200909_sample_1\' AND image_type = \'rgb_image\' AND
                                                       (ir_nuc = \'Y\' 
                                                       OR 
                                                       image_name IN (SELECT rgb_image_name FROM surv_pv_gla.summ_data_inventory WHERE ir_image = \'N\'))",
                                                       sep = "")) %>%
+  rbind(RPostgreSQL::dbGetQuery(con, paste("SELECT image_name FROM surv_pv_gla.tbl_images_4processing_latte WHERE image_survey_id = \'dbay_20200904_sample_1\' AND image_type = \'rgb_image\' AND
+                                                      (ir_nuc = \'Y\' 
+                                                      OR 
+                                                      image_name IN (SELECT rgb_image_name FROM surv_pv_gla.summ_data_inventory WHERE ir_image = \'N\'))",
+                                                      sep = ""))) %>%
   mutate(unprocessed = "TRUE")
 
-# Tidy up workspace and disconnect from DB
 RPostgreSQL::dbDisconnect(con)
 rm(con)
 
-# Get processed detection data
-mnC <- read.csv(file_allrgb_manual, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                              "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
-  data.frame(stringsAsFactors = FALSE) %>%
-  mutate(image_name = basename(image_name)) %>%
-  mutate(id = row_number()) %>%
-  filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal") %>%
-  select(id, detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
-  mutate(average_x = (bound_left + bound_right)/2,
-         average_y = (bound_top + bound_bottom)/2) %>%
-  rename_with( ~ paste0("mnC_", .x))
+# Set columbia_20200909_sample_1 variables
+file_folder_columbia <- "\\\\akc0ss-n086\\NMML_Polar_Imagery\\Surveys_HS\\Glacial\\Projects\\Surveys Glacial Sites Counts\\2020\\columbia_20200909_sample_1"
 
-mnT <- read.csv(file_ir2rgb_manual_C, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                              "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
-  rbind(read.csv(file_ir2rgb_manual_L, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                 col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                               "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
-  rbind(read.csv(file_ir2rgb_manual_R, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                 col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                               "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
-  data.frame(stringsAsFactors = FALSE) %>%
-  mutate(id = row_number()) %>%
-  mutate(image_name = basename(image_name)) %>%
-  filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal" | detection_type == "harbor_seal_offThermal" | detection_type ==
-           "harbor_seal_partial" | detection_type == "off_ir") %>%
-  select(id, detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
-  mutate(average_x = (bound_left + bound_right)/2,
-         average_y = (bound_top + bound_bottom)/2) %>%
-  rename_with( ~ paste0("mnT_", .x))
+# file_allrgb_model_columbia <- "columbia_20200909_sample_1_all_rgb_detections_20220426_processed.csv" 
+file_ir2rgb_ir_model_C_columbia <- "columbia_20200909_sample_1_C_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
+file_ir2rgb_ir_model_L_columbia <- "columbia_20200909_sample_1_L_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
+file_ir2rgb_ir_model_R_columbia <- "columbia_20200909_sample_1_R_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
+file_ir2rgb_rgb_model_C_columbia <- "columbia_20200909_sample_1_C_trigger_detectionsRGB_20220426_processed.csv"
+file_ir2rgb_rgb_model_L_columbia <- "columbia_20200909_sample_1_L_trigger_detectionsRGB_20220426_processed.csv"
+file_ir2rgb_rgb_model_R_columbia <- "columbia_20200909_sample_1_R_trigger_detectionsRGB_20220426_processed.csv"
+file_allrgb_manual_columbia <- "columbia_20200909_sample_1_all_rgb_manual_review_20220426.csv"
+file_ir2rgb_manual_C_columbia <- "columbia_20200909_sample_1_C_ir-rgb_manualReview_rgbDetections_20220909.csv"
+file_ir2rgb_manual_L_columbia <- "columbia_20200909_sample_1_L_ir-rgb_manualReview_rgbDetections_20220912.csv"
+file_ir2rgb_manual_R_columbia <- "columbia_20200909_sample_1_R_ir-rgb_manualReview_rgbDetections_20220912.csv"
 
-mdT <- read.csv(file_ir2rgb_ir_model_C, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                              "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
-  rbind(read.csv(file_ir2rgb_ir_model_L, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                 col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                               "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
-  rbind(read.csv(file_ir2rgb_ir_model_R, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                 col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                               "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
-  data.frame(stringsAsFactors = FALSE) %>%
-  mutate(id = row_number()) %>%
-  mutate(image_name = basename(image_name)) %>%
-  filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal") %>%
-  select(id, detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
-  mutate(average_x = (bound_left + bound_right)/2,
-         average_y = (bound_top + bound_bottom)/2) %>%
-  rename_with( ~ paste0("mdT_", .x))
+# Set dbay_20200904_sample_1 variables
+file_folder_dbay <- "\\\\akc0ss-n086\\NMML_Polar_Imagery\\Surveys_HS\\Glacial\\Projects\\Surveys Glacial Sites Counts\\2020\\dbay_20200904_sample_1"
 
-mdC <- read.csv(file_ir2rgb_rgb_model_C, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                            "score", "length", "detection_type", "type_score", "att1", "att2")) %>%
-  rbind(read.csv(file_ir2rgb_rgb_model_L, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                 col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                               "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
-  rbind(read.csv(file_ir2rgb_rgb_model_R, skip = 2, header = FALSE, stringsAsFactors = FALSE, 
-                 col.names = c("detection", "image_name", "frame_number", "bound_left", "bound_top", "bound_right", "bound_bottom", 
-                               "score", "length", "detection_type", "type_score", "att1", "att2"))) %>%
-  data.frame(stringsAsFactors = FALSE) %>%
-  mutate(id = row_number()) %>%
-  mutate(image_name = basename(image_name)) %>%
-  filter(detection_type == "harbor_seal" | detection_type == "split_harbor_seal") %>%
-  select(id, detection, image_name, bound_left, bound_top, bound_right, bound_bottom, detection_type) %>%
-  mutate(average_x = (bound_left + bound_right)/2,
-         average_y = (bound_top + bound_bottom)/2) %>%
-  rename_with( ~ paste0("mdC_", .x))
- 
+# file_allrgb_model_dbay <- "dbay_20200904_sample_1_all_rgb_detections_20220426_processed.csv" # not using for DBay
+file_ir2rgb_ir_model_C_dbay <- "dbay_20200904_sample_1_C_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
+file_ir2rgb_ir_model_L_dbay <- "dbay_20200904_sample_1_L_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
+file_ir2rgb_ir_model_R_dbay <- "dbay_20200904_sample_1_R_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
+file_ir2rgb_rgb_model_C_dbay <- "dbay_20200904_sample_1_C_trigger_detectionsRGB_20220426_processed.csv"
+file_ir2rgb_rgb_model_L_dbay <- "dbay_20200904_sample_1_L_trigger_detectionsRGB_20220426_processed.csv"
+file_ir2rgb_rgb_model_R_dbay <- "dbay_20200904_sample_1_R_trigger_detectionsRGB_20220426_processed.csv"
+file_allrgb_manual_dbay <- "dbay_20200904_sample_1_all_rgb_manualReview_20220916_final.csv"
+file_ir2rgb_manual_C_dbay <- "dbay_20200904_sample_1_C_ir-rgb_manualReview_rgbDetections_20220810.csv"
+file_ir2rgb_manual_L_dbay <- "dbay_20200904_sample_1_L_ir-rgb_manualReview_rgbDetections_20220908.csv"
+file_ir2rgb_manual_R_dbay <- "dbay_20200904_sample_1_R_ir-rgb_manualReview_rgbDetections_20220912.csv"
+
+# Process manual and model data
+mnC <- process_mnC(file_folder_columbia, file_allrgb_manual_columbia) %>%
+  rbind(process_mnC(file_folder_dbay, file_allrgb_manual_dbay)) %>%
+  mutate(mnC_id = row_number()) 
+
+mnT <- process_mnT(file_folder_columbia, file_ir2rgb_manual_C_columbia, file_ir2rgb_manual_L_columbia, file_ir2rgb_manual_R_columbia) %>%
+  rbind(process_mnT(file_folder_dbay, file_ir2rgb_manual_C_dbay, file_ir2rgb_manual_L_dbay, file_ir2rgb_manual_R_dbay)) %>%
+  mutate(mnT_id = row_number()) 
+
+mdC <- process_mdC(file_folder_columbia, file_ir2rgb_rgb_model_C_columbia, file_ir2rgb_rgb_model_L_columbia, file_ir2rgb_rgb_model_R_columbia) %>%
+  rbind(process_mdC(file_folder_dbay, file_ir2rgb_rgb_model_C_dbay, file_ir2rgb_rgb_model_L_dbay, file_ir2rgb_rgb_model_R_dbay)) %>%
+  mutate(mdC_id = row_number()) 
+
+mdT <- process_mdT(file_folder_columbia, file_ir2rgb_ir_model_C_columbia, file_ir2rgb_ir_model_L_columbia, file_ir2rgb_ir_model_R_columbia) %>%
+  rbind(process_mdT(file_folder_dbay, file_ir2rgb_ir_model_C_dbay, file_ir2rgb_ir_model_L_dbay, file_ir2rgb_ir_model_R_dbay)) %>%
+  mutate(mdT_id = row_number())
+
 # Merge data sets together
 mnC_2_mnT <- merge_and_intersect(mnC, mnT) %>%
   rename(temp = image_name,
@@ -171,7 +222,8 @@ mdT_2_mdC <- merge_and_intersect(mdT, mdC) %>%
          mdT2mdC_distance = distance,
          mdC_id_temp = mdC_id)
 
-summary <- mnC %>%
+# Create final summary dataset
+combined <- mnC %>%
   select(mnC_id, mnC_image_name) %>%
   rename(image_name = mnC_image_name) %>%
   full_join(mnC_2_mnT, by = "mnC_id") %>%
@@ -201,65 +253,12 @@ summary <- mnC %>%
   left_join(mnC %>% select(mnC_id, mnC_detection_type), by = "mnC_id") %>%
   left_join(mnT %>% select(mnT_id, mnT_detection_type), by = "mnT_id") %>%
   left_join(mdC %>% select(mdC_id, mdC_detection_type), by = "mdC_id") %>%
-  left_join(mdT %>% select(mdT_id, mdT_detection_type), by = "mdT_id")
-}
+  left_join(mdT %>% select(mdT_id, mdT_detection_type), by = "mdT_id") %>%
+  mutate(survey_id = ifelse(grepl("fl09", image_name), "columbia", "dbay"))
 
-# Install libraries ----------------------------------------------
-install_pkg("tidyverse")
-install_pkg("RPostgreSQL")
-install_pkg("RColorBrewer")
-install_pkg("ggbreak")
+rm(mnC_2_mnT, mnC_2_mdT, mnC_2_mdC, mnT_2_mdT, mnT_2_mdC, mdT_2_mdC)
 
-# Process columbia_20200909_sample_1 data
-survey_id <- "columbia_20200909_sample_1"
-file_folder <- "\\\\akc0ss-n086\\NMML_Polar_Imagery\\Surveys_HS\\Glacial\\Projects\\Surveys Glacial Sites Counts\\2020\\columbia_20200909_sample_1"
-
-# file_allrgb_model <- "columbia_20200909_sample_1_all_rgb_detections_20220426_processed.csv" 
-file_ir2rgb_ir_model_C <- "columbia_20200909_sample_1_C_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
-file_ir2rgb_ir_model_L <- "columbia_20200909_sample_1_L_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
-file_ir2rgb_ir_model_R <- "columbia_20200909_sample_1_R_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
-file_ir2rgb_rgb_model_C <- "columbia_20200909_sample_1_C_trigger_detectionsRGB_20220426_processed.csv"
-file_ir2rgb_rgb_model_L <- "columbia_20200909_sample_1_L_trigger_detectionsRGB_20220426_processed.csv"
-file_ir2rgb_rgb_model_R <- "columbia_20200909_sample_1_R_trigger_detectionsRGB_20220426_processed.csv"
-file_allrgb_manual <- "columbia_20200909_sample_1_all_rgb_manual_review_20220426.csv"
-file_ir2rgb_manual_C <- "columbia_20200909_sample_1_C_ir-rgb_manualReview_rgbDetections_20220909.csv"
-file_ir2rgb_manual_L <- "columbia_20200909_sample_1_L_ir-rgb_manualReview_rgbDetections_20220912.csv"
-file_ir2rgb_manual_R <- "columbia_20200909_sample_1_R_ir-rgb_manualReview_rgbDetections_20220912.csv"
-
-summary_columbia <- process_data_by_site(survey_id, file_folder,
-                                         file_ir2rgb_ir_model_C, file_ir2rgb_ir_model_L, file_ir2rgb_ir_model_R,
-                                         file_ir2rgb_rgb_model_C, file_ir2rgb_rgb_model_L, file_ir2rgb_rgb_model_R,
-                                         file_allrgb_manual,
-                                         file_ir2rgb_manual_C, file_ir2rgb_manual_L, file_ir2rgb_manual_R)
-
-# Process dbay_20200904_sample_1 data
-survey_id <- "dbay_20200904_sample_1"
-file_folder <- "\\\\akc0ss-n086\\NMML_Polar_Imagery\\Surveys_HS\\Glacial\\Projects\\Surveys Glacial Sites Counts\\2020\\dbay_20200904_sample_1"
-
-# file_allrgb_model <- "dbay_20200904_sample_1_all_rgb_detections_20220426_processed.csv" # not using for DBay
-file_ir2rgb_ir_model_C <- "dbay_20200904_sample_1_C_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
-file_ir2rgb_ir_model_L <- "dbay_20200904_sample_1_L_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
-file_ir2rgb_ir_model_R <- "dbay_20200904_sample_1_R_trigger_detectionsIR_20220426_processed_transposedRGB.csv"
-file_ir2rgb_rgb_model_C <- "dbay_20200904_sample_1_C_trigger_detectionsRGB_20220426_processed.csv"
-file_ir2rgb_rgb_model_L <- "dbay_20200904_sample_1_L_trigger_detectionsRGB_20220426_processed.csv"
-file_ir2rgb_rgb_model_R <- "dbay_20200904_sample_1_R_trigger_detectionsRGB_20220426_processed.csv"
-file_allrgb_manual <- "dbay_20200904_sample_1_all_rgb_manualReview_20220916_final.csv"
-file_ir2rgb_manual_C <- "dbay_20200904_sample_1_C_ir-rgb_manualReview_rgbDetections_20220810.csv"
-file_ir2rgb_manual_L <- "dbay_20200904_sample_1_L_ir-rgb_manualReview_rgbDetections_20220908.csv"
-file_ir2rgb_manual_R <- "dbay_20200904_sample_1_R_ir-rgb_manualReview_rgbDetections_20220912.csv"
-
-summary_dbay <- process_data_by_site(survey_id, file_folder,
-                                     file_ir2rgb_ir_model_C, file_ir2rgb_ir_model_L, file_ir2rgb_ir_model_R,
-                                     file_ir2rgb_rgb_model_C, file_ir2rgb_rgb_model_L, file_ir2rgb_rgb_model_R,
-                                     file_allrgb_manual,
-                                     file_ir2rgb_manual_C, file_ir2rgb_manual_L, file_ir2rgb_manual_R)
-
-rm(survey_id, file_folder, file_ir2rgb_ir_model_C, file_ir2rgb_ir_model_L, file_ir2rgb_ir_model_R,
-   file_ir2rgb_rgb_model_C, file_ir2rgb_rgb_model_L, file_ir2rgb_rgb_model_R,
-   file_allrgb_manual, file_ir2rgb_manual_C, file_ir2rgb_manual_L, file_ir2rgb_manual_R)
-
-summ <- summary_columbia %>% mutate(survey_id = "columbia") %>%
-  union ((summary_dbay) %>% mutate(survey_id = "dbay")) %>%
+summ <- combined %>%
   select(survey_id, image_name, unprocessed, mnC_id, mnT_id, mdC_id, mdT_id) %>%
   mutate(id = row_number()) %>%
   mutate(manual_color = ifelse(is.na(mnC_id), 0, 1),
@@ -297,6 +296,36 @@ summ_prop_noModelRGB <- summ %>%
   count() %>%
   group_by(survey_id) %>%
   mutate(proportion = n/sum(n))
+
+ONLYmnC <- summ %>%
+  filter(is.na(unprocessed)) %>% 
+  filter(is.na(mnT_id) & is.na(mdT_id)) %>%
+  left_join(mnC, by = "mnC_id") %>%
+  rename(average_x = mnC_average_x,
+         average_y = mnC_average_y) %>%
+  select(mnC_id, survey_id, average_x, average_y)
+
+ONLYthermal <- summ %>%
+  filter(is.na(unprocessed)) %>% 
+  filter(is.na(mnC_id) & !is.na(mnT_id) & !is.na(mdT_id)) %>%
+  left_join(mnT, by = "mnT_id") %>%
+  rename(average_x = mnT_average_x,
+         average_y = mnT_average_y) %>%
+  select(mnT_id, mdT_id, survey_id, image_name, average_x, average_y) %>%
+  rbind(summ %>%
+    filter(is.na(unprocessed)) %>% 
+    filter((is.na(mnC_id) & is.na(mdT_id))) %>%
+    left_join(mnT, by = "mnT_id") %>%
+    rename(average_x = mnT_average_x,
+         average_y = mnT_average_y) %>%
+    select(mnT_id, mdT_id, survey_id, image_name, average_x, average_y)) %>%
+  rbind(summ %>%
+    filter(is.na(unprocessed)) %>% 
+    filter(is.na(mnC_id) & is.na(mnT_id)) %>%
+    left_join(mdT, by = "mdT_id") %>%
+    rename(average_x = mdT_average_x,
+           average_y = mdT_average_y) %>%
+    select(mnT_id, mdT_id, survey_id, image_name, average_x, average_y))
 ```
 
 ## Introduction
@@ -304,7 +333,7 @@ summ_prop_noModelRGB <- summ %>%
 The purpose of this document is to support the evaluation of different methods for counting harbor seals at sites surveyed using the LATTE approach. The methods being evaluated are as follows (**reference name within document**):
 
 -   Manual review using color imagery only (**manual RGB**)
--   Manual review using thermal and color imagery (**manual IR**) -- will not include any image pairs where the thermal image was NUC
+-   Manual review using thermal and color imagery (**manual IR**) -- will not include any image pairs where the thermal image was NUC; *any harbor seals found in the color imagery only (marked as being off the thermal frame) are excluded from this summary document*
 -   Detection model review of thermal and color imagery based on the Ice Seal Color detection model (**model RGB**) -- will not include any image pairs where the thermal image was NUC
 -   Detection model review of thermal and color imagery based on the Ice Seal Thermal detection model (**model IR**)-- will not include any image pairs where the thermal image was NUC
 -   Detection model review of color imagery based on the Ice Seal Color detection model -- will include any image pairs where the thermal image was NUC. This model output was only evaluated for one of the sites and has a high number of false positives, so it has been excluded from this initial review. This information will be used to help identify a threshold for detection values and may be considered as possibility for streamlining the processing of color images where a thermal image is available.
@@ -424,9 +453,9 @@ Because the model RGB was the least successful method and because no seals were 
 
     -   Approximately 77% of harbor seals were detected by all three detection methods.
 
-    -   The manual review detected approximately 87% of harbor seals detected at the site (missed (n=67 harbor seals).
+    -   The manual and model IR reviews detected approximately 93% of harbor seals detected at the site (missed n=37 harbor seals). These can likely be explained by areas in the color images that are not reflected in this thermal images, and this will be explored in subsequent figures.
 
-    -   Approximately 8.5% (n=43) harbor seals were detected by both manual review methods and *missed* by both model review methods.
+    -   Approximately 10% (n=50) harbor seals were detected by both manual review methods and *missed* by both model review methods.
 
     -   The IR model review detected two harbor seals that were missed by the manual reviews.
 
@@ -434,9 +463,7 @@ Because the model RGB was the least successful method and because no seals were 
 
     -   Approximately 82% of harbor seals were detected by all three detection methods.
 
-    -   The manual RGB review detected 98% of harbor seals detected at the site.
-
-    -   A single additional harbor seal with the inclusion of the thermal imagery.
+    -   The manual and model IR reviews detected approximately 88% of harbor seals detected at the site and detected one harbor seal that was missed by the manual color review.
 
 ```{r count_by_method_combo_noModelRGB, fig.height = 4, fig.cap = "The count of harbor seals within each survey that were detected by the combination of detection methods(excluding model RGB detection method)."}
 # ggplot(data = summ_prop, aes(x = n, y = count_methods, fill = survey_id)) +
@@ -473,6 +500,42 @@ ggplot(data = summ_prop_noModelRGB, aes(y = proportion, x = survey_id, fill = co
 
 \newpage
 
+\newpage
+
+## Evaluation of Missed Harbor Seals
+
+To help identify if there are any general patterns in where missed seals were located within frames and to focus any further review of detections to resolve why they were missed, the following two figures were created.
+
+The first figure depicts the locations within the color frame where harbor seals were not detected within the thermal imagery.
+
+-   Most of the missed harbor seals were located on the inner and outer edges of the frames. The footprint for the color images was larger than that of the thermal images, so there are areas within the color images that the associated thermal images do not cover. These areas vary a bit camera-to-camera, but generally fall along the edges of the color frames. The locations where *most* of the harbor seals that were missed in the thermal images seem likely to fall in that area where the images do not overlap.
+
+```{r missed_seals_thermal, fig.height = 4, fig.cap = "The location of harbor seals detected within the color frames that were not detected within the thermal frames."}
+ggplot(data = ONLYmnC, aes(x = average_x, y = average_y)) +
+  geom_point(aes(color = survey_id)) +
+  scale_y_reverse() +
+  guides(fill = guide_legend(title = "Survey ID")) +
+  xlab("Locations of Missed Harbor Seals") +
+  ylab("")
+```
+
+\newpage
+
+The second figure depicts the locations within the thermal frame where harbor seals were not detected within the color imagery.
+
+-   The missed harbor seals were distributed throughout the thermal images, which suggests there was not a systematic bias in missed seals.
+-   `r nrow(ONLYthermal)` harbor seals were missed on `r length(unique(ONLYthermal$image_name))` frames across both survey areas.
+
+```{r missed_seals_color, fig.height = 4, fig.cap = "The location of harbor seals detected within the thermal frames that were not detected within the color frames."}
+ggplot(data = ONLYthermal, aes(x = average_x, y = average_y)) +
+  geom_point(aes(color = survey_id)) +
+  scale_y_reverse() +
+  xlab("Locations of Missed Harbor Seals") +
+  ylab("")
+```
+
+\newpage
+
 ## Known Data Caveats or Potential Issues
 
 In conjunction with our understanding of how effective the different counting methods are for detecting harbor seals, it is important to consider a number of known caveats or potential issues in the data/images themselves.
@@ -483,7 +546,7 @@ In conjunction with our understanding of how effective the different counting me
 -   **Color image loss**: Based on the estimates of frame drop rates throughout the glacial imagery collected, the loss of color frames is expected to be quite low, *but* there is the possibility that we have occasional cases thermal frames not having an associated color image. Possible ways to handle this circumstance:
     -   *Review thermal image for possible seals* (would have to designate a harbor seal based on thermal imagery only)
     -   *Drop the thermal images from review* (would result in a gap in coverage at the site)
--   **Areas in color and thermal images where there is not overlap**: For a couple of reasons, the area captured in the color and thermal images are not completely aligned (because of differences in size of area covered). Possible ways to handle this circumstance:
+-   **Areas in color and thermal images where there is not overlap**: For a couple of reasons, the area captured in the color and thermal images are not completely aligned (because of differences in size of area covered and a bit of an offset between some of the camera angles). Possible ways to handle this circumstance:
     -   *Count only seals where thermal and color images overlap* (can easily track what area was reviewed because the footprints can accurately represent the overlapping zones)
     -   *Count all seals on color images, which means thermal images will supplement color images where they are available and color images will be manually reviewed (on all images) where there is no image overlap* (would require additional work to review the areas where there is no corresponding thermal coverage and combines two different counting/detection methods; maybe consider labeling seals differently to track how they were detected)
 -   **Side-to-side overlap in the color images**: Due to an offset in the camera mount, the center and left color images overlap. Will need to develop code to identify these duplicates.
@@ -502,7 +565,7 @@ In conjunction with our understanding of how effective the different counting me
     -   Must be done before counting can start:
 
         -   Updates to code for preparing data for counting (\~4 hours)
-        -   Reorganize on the LAN and reimport 2020 data (so that the image lists reflect the corrected network paths) (\~12 hours...the import takes some time)
+        -   Reorganize on the LAN and re-import 2020 data (so that the image lists reflect the corrected network paths) (\~12 hours...the import takes some time)
         -   Set up Annotations folder for processing 2020 and 2021 glacial LATTE sites (separate folder for each year's data) (\~4 hours)
         -   Clean up counts and associated files for Disenchantment Bay and Columbia, so these sites do not need to be re-counted (\~2 hours)
         -   Update data processing steps in Glacial and Annotations Access front-ends and other data processing documentation for clear steps/tracking/processing (\~2 hours)
@@ -510,7 +573,7 @@ In conjunction with our understanding of how effective the different counting me
     -   Can be done after counting has started:
 
         -   Develop code for importing annotations into surv_pv_gla schema in pep database
-        -   Develop shell code (or process using post-processing script) to generate output of harbor seal locations within habitat (with CLC) (unsure time)
+        -   Develop shell code (or process using post-processing script) to generate output of harbor seal locations within habitat (with CLC)
         -   Develop code for handling side-to-side or double-coverage overlap areas
         -   Develop code for providing Jay with the final counts and necessary data for him to return count estimates
 
