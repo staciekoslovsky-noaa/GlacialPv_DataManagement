@@ -8,7 +8,7 @@ knit: (function(inputFile, encoding) {
   rmarkdown::render(
     inputFile, 
     encoding = encoding, 
-    output_file = file.path(dirname(inputFile), 'LATTE_Evaluation_20221114.pdf'))
+    output_file = file.path(dirname(inputFile), 'LATTE_Evaluation_20221128.pdf'))
   })
 ---
 
@@ -26,31 +26,40 @@ install_pkg <- function(x)
     }
   }
 
-merge_and_intersect <- function(data1, data2) {
-  var1 <- deparse(substitute(data1))
-  var2 <- deparse(substitute(data2))
+merge_and_intersect <- function(matchWhat, toWhat, method) {
+  matchWhat_var <- deparse(substitute(matchWhat))
+  toWhat_var <- deparse(substitute(toWhat))
   
-  data <- data1 %>%
-    full_join (data2, by = setNames(paste0(var2, "_image_name"), paste0(var1, "_image_name"))) %>%
+  data <- matchWhat %>%
+    full_join (toWhat, by = setNames(paste0(toWhat_var, "_image_name"), paste0(matchWhat_var, "_image_name"))) %>%
     mutate(image_name = ifelse(
-      is.na(!!as.name(paste0(var1, "_image_name"))), 
-      !!as.name(paste0(var2, "_image_name")), 
-      !!as.name(paste0(var1, "_image_name")))) %>%
-    mutate(intersect_LR = ifelse(!!as.name(paste0(var1, "_bound_right")) < !!as.name(paste0(var2, "_bound_left")) |
-                                   !!as.name(paste0(var1, "_bound_left")) > !!as.name(paste0(var2, "_bound_right")), "no", "yes"),
-           intersect_TB = ifelse(!!as.name(paste0(var1, "_bound_top")) > !!as.name(paste0(var2, "_bound_bottom")) |
-                                   !!as.name(paste0(var1, "_bound_bottom")) < !!as.name(paste0(var2, "_bound_top")), "no", "yes"))
-  
-  intersecting <- data %>%
-    filter(intersect_LR == "yes" & intersect_TB == "yes") %>%
-    mutate(distance = sqrt(
-      ((!!as.name(paste0(var1, "_average_x")) - !!as.name(paste0(var2, "_average_x"))) ^ 2) + 
-        ((!!as.name(paste0(var1, "_average_y")) - !!as.name(paste0(var2, "_average_y"))) ^ 2)) ) %>%
-    group_by(image_name, !!as.name(paste0(var2, "_id"))) %>%
-    slice(which.min(distance)) %>%
-    filter(distance < 50) %>%
-    select(image_name, paste0(var1, "_id"), paste0(var2, "_id"), distance) %>%
-    ungroup()
+      is.na(!!as.name(paste0(matchWhat_var, "_image_name"))), 
+      !!as.name(paste0(toWhat_var, "_image_name")), 
+      !!as.name(paste0(matchWhat_var, "_image_name")))) %>%
+    mutate(intersect_LR = ifelse(!!as.name(paste0(matchWhat_var, "_bound_right")) < !!as.name(paste0(toWhat_var, "_bound_left")) |
+                                   !!as.name(paste0(matchWhat_var, "_bound_left")) > !!as.name(paste0(toWhat_var, "_bound_right")), "no", "yes"),
+           intersect_TB = ifelse(!!as.name(paste0(matchWhat_var, "_bound_top")) > !!as.name(paste0(toWhat_var, "_bound_bottom")) |
+                                   !!as.name(paste0(matchWhat_var, "_bound_bottom")) < !!as.name(paste0(toWhat_var, "_bound_top")), "no", "yes"))
+
+  if(method == "minimum_distance") {
+    intersecting <- data %>%
+      filter(intersect_LR == "yes" & intersect_TB == "yes") %>%
+      mutate(distance = sqrt(
+        ((!!as.name(paste0(matchWhat_var, "_average_x")) - !!as.name(paste0(toWhat_var, "_average_x"))) ^ 2) + 
+          ((!!as.name(paste0(matchWhat_var, "_average_y")) - !!as.name(paste0(toWhat_var, "_average_y"))) ^ 2)) ) %>%
+      group_by(image_name, !!as.name(paste0(matchWhat_var, "_id"))) %>%
+      slice(which.min(distance)) %>%
+      filter(distance < 50) %>%
+      select(image_name, paste0(matchWhat_var, "_id"), paste0(toWhat_var, "_id"), distance) %>%
+      ungroup()
+  } else if (method == "maximum_score") {
+    intersecting <- data %>%
+      filter(intersect_LR == "yes" & intersect_TB == "yes") %>%
+      group_by(image_name, !!as.name(paste0(matchWhat_var, "_id"))) %>%
+      slice(which.max(!!as.name(paste0(toWhat_var, "_score")))) %>%
+      select(image_name, paste0(matchWhat_var, "_id"), paste0(toWhat_var, "_id"), paste0(toWhat_var, "_score")) %>%
+      ungroup()
+  }
 }
 
 process_mnC <- function(file_folder, file_allrgb_manual) {
@@ -200,24 +209,24 @@ mdT <- process_mdT(file_folder_columbia, file_ir2rgb_ir_model_C_columbia, file_i
   mutate(mdT_id = row_number())
 
 # Merge data sets together
-mnC_2_mnT <- merge_and_intersect(mnC, mnT) %>%
+mnC_2_mnT <- merge_and_intersect(mnT, mnC, "minimum_distance") %>%
   rename(temp = image_name,
          mnC2mnT_distance = distance)
-mnC_2_mdT <- merge_and_intersect(mnC, mdT )%>%
+mnC_2_mdT <- merge_and_intersect(mdT, mnC, "minimum_distance")%>%
   rename(temp = image_name,
          mnC2mdT_distance = distance) 
-mnC_2_mdC <- merge_and_intersect(mnC, mdC) %>%
+mnC_2_mdC <- merge_and_intersect(mnC, mdC, "minimum_distance") %>%
   rename(temp = image_name,
          mnC2mdC_distance = distance) 
-mnT_2_mdT <- merge_and_intersect(mnT, mdT) %>%
+mnT_2_mdT <- merge_and_intersect(mnT, mdT, "minimum_distance") %>%
   rename(temp = image_name,
          mnT2mdT_distance = distance,
          mdT_id_temp = mdT_id)
-mnT_2_mdC <- merge_and_intersect(mnT, mdC) %>%
+mnT_2_mdC <- merge_and_intersect(mnT, mdC, "minimum_distance") %>%
   rename(temp = image_name,
          mnT2mdC_distance = distance,
          mdC_id_temp = mdC_id)
-mdT_2_mdC <- merge_and_intersect(mdT, mdC) %>%
+mdT_2_mdC <- merge_and_intersect(mdT, mdC, "minimum_distance") %>%
   rename(temp = image_name,
          mdT2mdC_distance = distance,
          mdC_id_temp = mdC_id)
@@ -271,6 +280,8 @@ summ <- combined %>%
   mutate(count_methods = ifelse(model_color == 1, paste0(count_methods, "model RGB. "), count_methods)) %>%
   mutate(count_methods = ifelse(model_thermal == 1, paste0(count_methods, "model IR. "), count_methods)) %>%
   mutate(count_methods_noModelRGB = gsub("model RGB. ", "", count_methods))
+
+write.csv(summ, "C:\\skh\\LATTE_Evaluation_20221128_MatchedRecords.csv", row.names = FALSE)
 
 summ_long <- summ %>%
   filter(is.na(unprocessed)) %>%
