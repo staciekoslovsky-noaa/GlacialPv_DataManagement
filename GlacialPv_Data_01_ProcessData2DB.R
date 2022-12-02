@@ -39,12 +39,9 @@ setwd(wd)
 for (i in 1:length(years)){
   wd_year <- paste(wd, years[i], sep = "/")
   dir <- list.dirs(wd_year, full.names = TRUE, recursive = FALSE)
-  if (years[i] == 2020){
-    dir <- data.frame(path = dir[grep("fl", dir)], stringsAsFactors = FALSE)
-  } else {
-    dir <- list.dirs(dir, full.names = TRUE, recursive = FALSE)
-    dir <- data.frame(path = dir[grep("mm", dir)], stringsAsFactors = FALSE)
-  }
+
+  dir <- list.dirs(dir, full.names = TRUE, recursive = FALSE)
+  dir <- data.frame(path = dir[grep("mm", dir)], stringsAsFactors = FALSE)
   
   image_dir <- merge(dir, c("left_view", "center_view", "right_view"), ALL = true)
   colnames(image_dir) <- c("path", "camera_loc")
@@ -85,11 +82,7 @@ for (i in 1:length(years)){
         metaJ$dt <- paste(sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[5]]), sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[6]]), sep = "_") 
         metaJ$flight <- sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[3]]) 
         metaJ$camera_view <- sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[4]]) 
-        if (years[i] == 2020){
-          metaJ$camera_model <- NA
-        } else {
-          metaJ$camera_model <- basename(image_dir$path[i])
-        }
+        metaJ$camera_model <- basename(image_dir$path[i])
         meta2DB <- plyr::rbind.fill(meta2DB, metaJ)
       }
     }

@@ -1,0 +1,81 @@
+--Correct 2020 network paths to match updated folder structure
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl01', 'fl01/85mm_25_5deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl01';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl02', 'fl02/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl02';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl03', 'fl03/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl03';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl04', 'fl04/85mm_25_5deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl04';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl05', 'fl05/85mm_25_5deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl05';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl06', 'fl06/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl06';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl07', 'fl07/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl07';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl08', 'fl08/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl08'
+AND dt <= '20200906_201438';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl08', 'fl08/85mm_25_5deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl08'
+AND dt > '20200906_201438';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl09', 'fl09/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl09'
+AND (dt < '20200909_214614' OR dt > '20200909_235740');
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl09', 'fl09/85mm_25_5deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl09'
+AND (dt > '20200909_214614' AND dt < '20200909_235740') ;
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl10', 'fl10/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl10'
+AND (dt < '20200910_200147' OR dt > '20200910_230339');
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl10', 'fl10/85mm_25_5deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl10'
+AND (dt > '20200910_200147' AND dt < '20200910_230339');
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl11', 'fl11/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl11';
+
+UPDATE surv_pv_gla.tbl_images
+SET image_dir = REPLACE(image_dir, 'fl12', 'fl12/85mm_21_0deg_NoDetectionModel')
+WHERE project_id = 'glacial_2020'
+AND flight = 'fl12';
