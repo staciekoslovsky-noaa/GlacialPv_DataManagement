@@ -23,18 +23,18 @@ install_pkg("tidyverse")
 wd <- paste("//nmfs/akc-nmml/Polar_Imagery/SurveyS_HS/Glacial/Projects/Surveys Glacial Sites Counts", survey_year, "_ReadyForLATTE", sep = "/")
 
 if (file.exists(wd) == TRUE) {
-   unlink(wd, recursive = TRUE)
+   #unlink(wd, recursive = TRUE)
 }
 
 dir.create(wd)
 setwd(wd)
 
 # Get data from the DB for processing
-con <- RPostgreSQL::dbConnect(PostgreSQL(), 
-                              dbname = Sys.getenv("pep_db"), 
-                              host = Sys.getenv("pep_ip"), 
-                              user = Sys.getenv("pep_admin"), 
-                              password = Sys.getenv("admin_pw"))
+con <-   DBI::dbConnect(RPostgreSQL::PostgreSQL(),
+                        dbname = Sys.getenv("pep_db"),
+                        host = Sys.getenv("pep_ip"),
+                        user = Sys.getenv("pep_admin"),
+                        password = Sys.getenv("admin_pw"))
 
 meta <- RPostgreSQL::dbGetQuery(con, paste("select * from surv_pv_gla.tbl_images_4processing_latte where survey_method_lku = \'L\' and image_name not like \'%dupe%\' and survey_year::integer = ", survey_year,  sep = "")) %>%
   mutate(image_path = paste(image_dir, image_name, sep = "/")) 
@@ -85,12 +85,10 @@ for (j in 1:nrow(surveys)) {
     write.table(image_list_irwithRGB_sub, paste(copy_path, "/", surveys$image_survey_id[j], "_", camera_sub, "_irWithRGB_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
   }
   
-  # image_list_rgbWithIR <- image_list_paired %>%
-  #   filter(!is.na(rgb_image_name) & ir_nuc == "N" & !is.na(ir_image_name)) %>%
-  #   select(flight, camera_view, dt, rgb_image_name, rgb_image_path) %>%
-  #   unique()
-  # 
-  # write.table(image_list_irwithRGB_sub, paste(copy_path, "/", surveys$image_survey_id[j], "_all_rgbWithIR_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
+  image_list_rgbWithIR <- image_list_paired %>%
+    filter(!is.na(rgb_image_name) & ir_nuc == "N" & !is.na(ir_image_name)) %>%
+    select(flight, camera_view, dt, rgb_image_name, rgb_image_path) %>%
+    unique()
   
   for (i in c("C", "L", "R")) {
     camera_sub <- i
@@ -108,6 +106,7 @@ for (j in 1:nrow(surveys)) {
     #select(flight, camera_view, dt, rgb_image_name, rgb_image_path)
     select(rgb_image_path) %>%
     unique()
+  
   write.table(image_list_rgbNoIR, paste(copy_path, "/", surveys$image_survey_id[j], "_all_rgbWithoutIR_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   # Finish processing RGB image list
@@ -123,11 +122,11 @@ for (j in 1:nrow(surveys)) {
   # write.table(image_list_ir, paste(copy_path, "/", surveys$image_survey_id[j], "_all_ir_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   # Update DB to indicate data have been processed
-  # RPostgreSQL::dbSendQuery(con, paste("UPDATE surv_pv_gla.tbl_flyovers f SET data_status_lku = \'V\' FROM surv_pv_gla.tbl_event e WHERE f.event_id = e.id AND e.survey_id = \'",
-  #                                     surveys$survey_id[j],
-  #                                     "\' AND f.survey_rep = ",
-  #                                     surveys$survey_rep_f[j],
-  #                                     sep = ''))
+  RPostgreSQL::dbSendQuery(con, paste("UPDATE surv_pv_gla.tbl_flyovers f SET data_status_lku = \'V\' FROM surv_pv_gla.tbl_event e WHERE f.event_id = e.id AND e.survey_id = \'",
+                                      surveys$survey_id[j],
+                                      "\' AND f.survey_rep = ",
+                                      surveys$survey_rep_f[j],
+                                      sep = ''))
 }
 
 RPostgreSQL::dbDisconnect(con)
