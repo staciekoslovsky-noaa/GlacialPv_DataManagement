@@ -44,7 +44,7 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mcbride_20200903_fullmosaic_2\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl03\' AND dt >= \'20200904_013400\' AND dt <= \'20200904_013659\'") 
 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy_20200904_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl04\' AND dt >= \'20200904_212500\' AND dt <= \'20200904_222759\'") 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'malaspina_20200904_targetedmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl04\' AND dt >= \'20200904_225300\' AND dt <= \'20200904_230559\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'malaspina_20200904_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl04\' AND dt >= \'20200904_225300\' AND dt <= \'20200904_230559\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20200904_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl04\' AND dt >= \'20200904_231700\' AND dt <= \'20200904_234959\'") 
 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi_20200905_targetedmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl06\' AND dt >= \'20200905_215300\' AND dt <= \'20200905_215759\'") 
@@ -82,7 +82,7 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise_20200909_fullmosaic_2\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_212200\' AND dt <= \'20200909_212430\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barry_20200909_fullmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_212700\' AND dt <= \'20200909_214059\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale_20200909_targetedmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_214200\' AND dt <= \'20200909_220559\'") 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard_20200909_fullmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_220700\' AND dt <= \'20200909_224559\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard_20200909_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_220700\' AND dt <= \'20200909_224559\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbia_20200909_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_224800\' AND dt <= \'20200909_234559\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares_20200909_fullmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl09\' AND dt >= \'20200909_235500\' AND dt <= \'20200910_000059\'") 
 
