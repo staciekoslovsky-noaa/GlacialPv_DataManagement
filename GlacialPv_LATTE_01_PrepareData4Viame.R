@@ -107,7 +107,7 @@ for (j in 1:nrow(surveys)) {
     select(rgb_image_path) %>%
     unique()
   
-  write.table(image_list_rgbNoIR, paste(copy_path, "/", surveys$image_survey_id[j], "_all_rgbWithoutIR_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(image_list_rgbNoIR, paste(copy_path, "/", surveys$image_survey_id[j], "_allRGBwithoutIR_images_", format(Sys.time(), "%Y%m%d"), ".txt", sep = ""), quote = FALSE, row.names = FALSE, col.names = FALSE)
   
   # Finish processing RGB image list
   # image_list_rgb <- image_list_rgb %>%
