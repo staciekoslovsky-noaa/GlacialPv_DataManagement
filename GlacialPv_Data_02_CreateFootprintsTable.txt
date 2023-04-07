@@ -1,0 +1,9 @@
+CREATE TABLE surv_pv_gla.geo_images_footprint_network_path AS
+SELECT f.id, i.flight, i.camera_view, i.image_name, i.image_dir || '\' || i.image_name as image_path, m.survey_id, f.geom
+FROM surv_pv_gla.geo_images_meta m
+INNER JOIN surv_pv_gla.geo_images_footprint f USING (flight, camera_view, dt)
+INNER JOIN surv_pv_gla.tbl_images i USING (flight, camera_view, dt)
+WHERE i.image_type = 'rgb_image' AND f.image_type = 'rgb_image'
+AND m.survey_id <> 'do_not_use'
+
+SET id field as PK!
