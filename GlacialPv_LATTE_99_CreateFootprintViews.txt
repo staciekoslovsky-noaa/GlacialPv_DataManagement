@@ -1,0 +1,35 @@
+
+CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte AS
+SELECT row_number() OVER (ORDER BY project_id, survey_id, image_name)::integer AS id, u.*
+FROM (
+	--LATTE IR-RGB model review
+	SELECT f.project_id, m.survey_id, f.flight, f.camera_view, f.dt, f.image_name, 'model_review' AS review_method, ST_Intersection(f.geom, t.geom) AS geom -- f.geom AS geom_rgb, t.geom AS geom_ir
+	FROM surv_pv_gla.geo_images_footprint f
+	LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+	LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
+	INNER JOIN (SELECT * FROM surv_pv_gla.tbl_event e INNER JOIN surv_pv_gla.tbl_flyovers f ON e.id = f.event_id) e ON e.survey_id || '_' || e.survey_rep = m.survey_id
+	INNER JOIN (SELECT f.id, f.project_id, m.survey_id, f.flight, f.camera_view, f.dt, f.image_name, f.geom
+		FROM surv_pv_gla.geo_images_footprint f
+		LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+		LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
+		INNER JOIN (SELECT * FROM surv_pv_gla.tbl_event e INNER JOIN surv_pv_gla.tbl_flyovers f ON e.id = f.event_id) e ON e.survey_id || '_' || e.survey_rep = m.survey_id
+		WHERE i.image_type = 'ir_image'
+		AND ir_nuc = 'N'
+		AND survey_method_lku = 'L') t ON f.flight = t.flight AND f.camera_view = t.camera_view AND f.dt = t.dt
+	WHERE i.image_type = 'rgb_image'
+	AND ir_nuc = 'N'
+	AND survey_method_lku = 'L'
+	AND f.geom IS NOT NULL
+	AND t.geom IS NOT NULL
+
+	UNION
+	
+	--LATTE RGB manual review
+	SELECT f.project_id, m.survey_id, f.flight, f.camera_view, f.dt, f.image_name, 'manual_review' AS review_method, f.geom
+	FROM surv_pv_gla.geo_images_footprint f
+	LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+	LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
+	INNER JOIN (SELECT * FROM surv_pv_gla.tbl_event e INNER JOIN surv_pv_gla.tbl_flyovers f ON e.id = f.event_id) e ON e.survey_id || '_' || e.survey_rep = m.survey_id
+	WHERE i.image_type = 'rgb_image'
+	AND ir_nuc = 'Y'
+	AND survey_method_lku = 'L') u
