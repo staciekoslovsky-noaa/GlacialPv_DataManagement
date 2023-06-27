@@ -83,5 +83,10 @@ for (k in 1:length(years)) {
   }
 }
 
+RPostgreSQL::dbSendQuery(con, "CREATE INDEX geo_images_footprint_idx ON surv_pv_gla.geo_images_footprint USING GIST (geom)")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.tbl_images SET latte_overlapping = \'N\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.tbl_images SET latte_overlapping = \'Y\' WHERE image_name IN (SELECT * FROM surv_pv_gla.qa_images_latte_overlapping)")
+
 RPostgreSQL::dbDisconnect(con)
 rm(con, next_id, shape, i, wd, install_pkg)
