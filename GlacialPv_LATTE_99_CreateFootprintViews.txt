@@ -1,35 +1,172 @@
+CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte_manualreview
+ AS
+ SELECT f.project_id,
+    m.survey_id,
+    f.flight,
+    f.camera_view,
+    f.dt,
+    f.image_name,
+    'manual_review'::text AS review_method,
+    f.geom
+   FROM surv_pv_gla.geo_images_footprint f
+     LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+     LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
+     JOIN ( SELECT e_1.id,
+            e_1.survey_id,
+            e_1.site_lku,
+            e_1.survey_date,
+            e_1.survey_method_lku,
+            e_1.aircraft,
+            e_1.observers,
+            e_1.camera_arrangement_lku,
+            e_1.visual_estimate,
+            e_1.visual_estimate_by,
+            e_1.event_comments,
+            e_1.flight,
+            f_1.id,
+            f_1.event_id,
+            f_1.survey_rep,
+            f_1.start_dt_aklocal,
+            f_1.target_altitude_ft,
+            f_1.num_transects,
+            f_1.cloud_cover_lku,
+            f_1.precipitation_lku,
+            f_1.temperature_lku,
+            f_1.camera_angle,
+            f_1.lens_focal_length_mm,
+            f_1.flyover_comments,
+            f_1.data_status_lku,
+            f_1.avg_gps_altitude_ft,
+            f_1.wind_speed_lku,
+            f_1.target_overlap_pct
+           FROM surv_pv_gla.tbl_event e_1
+             JOIN surv_pv_gla.tbl_flyovers f_1 ON e_1.id = f_1.event_id) e(id, survey_id, site_lku, survey_date, survey_method_lku, aircraft, observers, camera_arrangement_lku, visual_estimate, visual_estimate_by, event_comments, flight, id_1, event_id, survey_rep, start_dt_aklocal, target_altitude_ft, num_transects, cloud_cover_lku, precipitation_lku, temperature_lku, camera_angle, lens_focal_length_mm, flyover_comments, data_status_lku, avg_gps_altitude_ft, wind_speed_lku, target_overlap_pct) ON ((e.survey_id::text || '_'::text) || e.survey_rep) = m.survey_id::text
+  WHERE i.image_type = 'rgb_image'::text AND i.ir_nuc::text = 'Y'::text AND e.survey_method_lku::text = 'L'::text AND i.latte_overlapping::text = 'N'::text;
 
-CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte AS
-SELECT row_number() OVER (ORDER BY project_id, survey_id, image_name)::integer AS id, u.*
-FROM (
-	--LATTE IR-RGB model review
-	SELECT f.project_id, m.survey_id, f.flight, f.camera_view, f.dt, f.image_name, 'model_review' AS review_method, ST_Intersection(f.geom, t.geom) AS geom -- f.geom AS geom_rgb, t.geom AS geom_ir
-	FROM surv_pv_gla.geo_images_footprint f
-	LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
-	LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
-	INNER JOIN (SELECT * FROM surv_pv_gla.tbl_event e INNER JOIN surv_pv_gla.tbl_flyovers f ON e.id = f.event_id) e ON e.survey_id || '_' || e.survey_rep = m.survey_id
-	INNER JOIN (SELECT f.id, f.project_id, m.survey_id, f.flight, f.camera_view, f.dt, f.image_name, f.geom
-		FROM surv_pv_gla.geo_images_footprint f
-		LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
-		LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
-		INNER JOIN (SELECT * FROM surv_pv_gla.tbl_event e INNER JOIN surv_pv_gla.tbl_flyovers f ON e.id = f.event_id) e ON e.survey_id || '_' || e.survey_rep = m.survey_id
-		WHERE i.image_type = 'ir_image'
-		AND ir_nuc = 'N'
-		AND survey_method_lku = 'L') t ON f.flight = t.flight AND f.camera_view = t.camera_view AND f.dt = t.dt
-	WHERE i.image_type = 'rgb_image'
-	AND ir_nuc = 'N'
-	AND survey_method_lku = 'L'
-	AND f.geom IS NOT NULL
-	AND t.geom IS NOT NULL
 
-	UNION
-	
-	--LATTE RGB manual review
-	SELECT f.project_id, m.survey_id, f.flight, f.camera_view, f.dt, f.image_name, 'manual_review' AS review_method, f.geom
-	FROM surv_pv_gla.geo_images_footprint f
-	LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
-	LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
-	INNER JOIN (SELECT * FROM surv_pv_gla.tbl_event e INNER JOIN surv_pv_gla.tbl_flyovers f ON e.id = f.event_id) e ON e.survey_id || '_' || e.survey_rep = m.survey_id
-	WHERE i.image_type = 'rgb_image'
-	AND ir_nuc = 'Y'
-	AND survey_method_lku = 'L') u
+CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte_modelreview
+ AS
+ SELECT f.project_id,
+    m.survey_id,
+    f.flight,
+    f.camera_view,
+    f.dt,
+    f.image_name,
+    'model_review'::text AS review_method,
+    st_intersection(f.geom, t.geom) AS geom
+   FROM surv_pv_gla.geo_images_footprint f
+     LEFT JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+     LEFT JOIN surv_pv_gla.tbl_images i USING (image_name)
+     JOIN ( SELECT e_1.id,
+            e_1.survey_id,
+            e_1.site_lku,
+            e_1.survey_date,
+            e_1.survey_method_lku,
+            e_1.aircraft,
+            e_1.observers,
+            e_1.camera_arrangement_lku,
+            e_1.visual_estimate,
+            e_1.visual_estimate_by,
+            e_1.event_comments,
+            e_1.flight,
+            f_1.id,
+            f_1.event_id,
+            f_1.survey_rep,
+            f_1.start_dt_aklocal,
+            f_1.target_altitude_ft,
+            f_1.num_transects,
+            f_1.cloud_cover_lku,
+            f_1.precipitation_lku,
+            f_1.temperature_lku,
+            f_1.camera_angle,
+            f_1.lens_focal_length_mm,
+            f_1.flyover_comments,
+            f_1.data_status_lku,
+            f_1.avg_gps_altitude_ft,
+            f_1.wind_speed_lku,
+            f_1.target_overlap_pct
+           FROM surv_pv_gla.tbl_event e_1
+             JOIN surv_pv_gla.tbl_flyovers f_1 ON e_1.id = f_1.event_id) e(id, survey_id, site_lku, survey_date, survey_method_lku, aircraft, observers, camera_arrangement_lku, visual_estimate, visual_estimate_by, event_comments, flight, id_1, event_id, survey_rep, start_dt_aklocal, target_altitude_ft, num_transects, cloud_cover_lku, precipitation_lku, temperature_lku, camera_angle, lens_focal_length_mm, flyover_comments, data_status_lku, avg_gps_altitude_ft, wind_speed_lku, target_overlap_pct) ON ((e.survey_id::text || '_'::text) || e.survey_rep) = m.survey_id::text
+     JOIN ( SELECT f_1.id,
+            f_1.project_id,
+            m_1.survey_id,
+            f_1.flight,
+            f_1.camera_view,
+            f_1.dt,
+            f_1.image_name,
+            f_1.geom
+           FROM surv_pv_gla.geo_images_footprint f_1
+             LEFT JOIN surv_pv_gla.geo_images_meta m_1 USING (flight, camera_view, dt)
+             LEFT JOIN surv_pv_gla.tbl_images i_1 USING (image_name)
+             JOIN ( SELECT e_2.id,
+                    e_2.survey_id,
+                    e_2.site_lku,
+                    e_2.survey_date,
+                    e_2.survey_method_lku,
+                    e_2.aircraft,
+                    e_2.observers,
+                    e_2.camera_arrangement_lku,
+                    e_2.visual_estimate,
+                    e_2.visual_estimate_by,
+                    e_2.event_comments,
+                    e_2.flight,
+                    f_2.id,
+                    f_2.event_id,
+                    f_2.survey_rep,
+                    f_2.start_dt_aklocal,
+                    f_2.target_altitude_ft,
+                    f_2.num_transects,
+                    f_2.cloud_cover_lku,
+                    f_2.precipitation_lku,
+                    f_2.temperature_lku,
+                    f_2.camera_angle,
+                    f_2.lens_focal_length_mm,
+                    f_2.flyover_comments,
+                    f_2.data_status_lku,
+                    f_2.avg_gps_altitude_ft,
+                    f_2.wind_speed_lku,
+                    f_2.target_overlap_pct
+                   FROM surv_pv_gla.tbl_event e_2
+                     JOIN surv_pv_gla.tbl_flyovers f_2 ON e_2.id = f_2.event_id) e_1(id, survey_id, site_lku, survey_date, survey_method_lku, aircraft, observers, camera_arrangement_lku, visual_estimate, visual_estimate_by, event_comments, flight, id_1, event_id, survey_rep, start_dt_aklocal, target_altitude_ft, num_transects, cloud_cover_lku, precipitation_lku, temperature_lku, camera_angle, lens_focal_length_mm, flyover_comments, data_status_lku, avg_gps_altitude_ft, wind_speed_lku, target_overlap_pct) ON ((e_1.survey_id::text || '_'::text) || e_1.survey_rep) = m_1.survey_id::text
+          WHERE i_1.image_type = 'ir_image'::text AND i_1.ir_nuc::text = 'N'::text AND e_1.survey_method_lku::text = 'L'::text) t ON f.flight = t.flight AND f.camera_view = t.camera_view AND f.dt = t.dt
+  WHERE i.image_type = 'rgb_image'::text AND i.ir_nuc::text = 'N'::text AND e.survey_method_lku::text = 'L'::text AND f.geom IS NOT NULL AND t.geom IS NOT NULL AND i.latte_overlapping::text = 'N'::text;
+
+
+
+
+
+
+CREATE VIEW surv_pv_gla.geo_images_footprint_latte AS
+WITH footprints AS
+(SELECT *
+FROM surv_pv_gla.geo_images_footprint_latte_manualreview
+UNION
+SELECT *
+FROM surv_pv_gla.geo_images_footprint_latte_modelreview), 
+
+counts AS
+(SELECT f.survey_id, f.image_name, f.camera_view as camera, count(detection_type) AS seals, suppressed, f.geom
+FROM footprints f
+LEFT JOIN surv_pv_gla.geo_detections USING (image_name)
+GROUP BY f.survey_id, f.image_name, f.camera_view, suppressed, f.geom
+ORDER BY f.image_name),
+
+suppressed AS 
+(SELECT survey_id, sum(seals) as num_suppressed
+FROM counts
+WHERE suppressed = 'true'
+GROUP BY survey_id),
+
+total AS 
+(SELECT survey_id, sum(seals) as num_total
+FROM counts
+GROUP BY survey_id)
+
+SELECT row_number() OVER (ORDER BY survey_id, image_name)::integer AS id,
+row_number() OVER (PARTITION BY survey_id  ORDER BY survey_id, image_name)::integer AS in_group_id, survey_id, image_name, camera, seals, 
+CASE WHEN (row_number() OVER (PARTITION BY survey_id  ORDER BY survey_id, image_name)::integer) = 1 THEN num_total - num_suppressed ELSE 0 END AS total, geom
+FROM counts
+LEFT JOIN total USING (survey_id)
+LEFT JOIN suppressed USING (survey_id)
+WHERE suppressed = 'false' OR suppressed IS NULL
+
