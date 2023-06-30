@@ -1,4 +1,4 @@
-# Glacial Pv Surveys: Create project folders and store exif data in images
+# Glacial Pv Surveys: Export image lists for VIAME processing
 
 # STARTING VARIABLES (enter values as degrees)
 survey_year <- 2020
