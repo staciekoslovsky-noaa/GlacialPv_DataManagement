@@ -1,3 +1,143 @@
+CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte AS
+
+WITH manual AS 
+(SELECT survey_id, r.flight, r.camera_view, r.dt, r.image_name, 'manual' as review_type, r.geom
+FROM surv_pv_gla.geo_images_footprint r
+LEFT JOIN surv_pv_gla.geo_images_meta USING (flight, camera_view, dt)
+WHERE image_type = 'rgb_image'
+AND survey_id LIKE '%sample%'
+AND (image_name IN (SELECT image_name FROM surv_pv_gla.tbl_images WHERE image_type = 'rgb_image' AND ir_nuc = 'Y')
+	OR
+	image_name IN (SELECT rgb_image_name FROM surv_pv_gla.summ_data_inventory WHERE ir_image = 'N'))),
+
+model_prep AS
+(SELECT survey_id, r.flight, r.camera_view, r.dt, r.image_name, r.geom as rgb_geom, ir_geom
+FROM surv_pv_gla.geo_images_footprint r
+LEFT JOIN (SELECT project_id, flight, camera_view, dt, image_name, geom as ir_geom
+	FROM surv_pv_gla.geo_images_footprint
+	WHERE image_type = 'ir_image'
+	) i
+	USING (flight, camera_view, dt)
+LEFT JOIN surv_pv_gla.geo_images_meta USING (flight, camera_view, dt)
+WHERE image_type = 'rgb_image'
+AND survey_id LIKE '%sample%'
+AND r.image_name IN (SELECT image_name FROM surv_pv_gla.tbl_images WHERE image_type = 'rgb_image' AND ir_nuc = 'N')),
+
+model AS
+(SELECT survey_id, flight, camera_view, dt, image_name, 'model' as review_type, st_intersection(rgb_geom, ir_geom) AS geom
+FROM model_prep),
+
+all_prep AS
+(SELECT * 
+FROM (SELECT *
+	FROM manual
+	UNION 
+	SELECT *
+	FROM model
+	 WHERE geom IS NOT NULL) d
+ORDER BY survey_id, flight, camera_view, dt),
+
+overlapping AS
+(SELECT DISTINCT CASE WHEN x.dt1 > x.dt2 THEN x.image1 ELSE x.image2 END AS drop_image
+FROM (SELECT a.survey_id,
+	  a.image_name AS image1,
+      b.image_name AS image2,
+      a.dt AS dt1,
+      b.dt AS dt2,
+      abs("right"(a.dt, 13)::numeric - "right"(b.dt, 13)::numeric) AS dt_diff,
+      st_area(st_intersection(a.geom, b.geom)) AS overlap
+      FROM all_prep a
+      LEFT JOIN all_prep b ON a.geom && b.geom
+      WHERE a.image_name <> b.image_name AND a.survey_id::text = b.survey_id::text AND st_area(st_intersection(a.geom, b.geom)) > 0 AND abs("right"(a.dt, 13)::numeric - "right"(b.dt, 13)::numeric) > 3::numeric
+      ORDER BY a.survey_id, a.image_name) x),
+
+footprints AS
+(SELECT * 
+FROM all_prep
+WHERE image_name NOT IN (SELECT drop_image FROM overlapping)),
+	  
+counts AS (
+SELECT f.survey_id, f.image_name, f.camera_view AS camera, count(geo_detections.detection_type) AS seals, geo_detections.suppressed, f.geom
+FROM footprints f
+LEFT JOIN surv_pv_gla.geo_detections USING (image_name)
+GROUP BY f.survey_id, f.image_name, f.camera_view, geo_detections.suppressed, f.geom
+ORDER BY f.image_name), 
+
+suppressed AS (
+SELECT counts.survey_id, sum(counts.seals) AS num_suppressed
+FROM counts
+WHERE counts.suppressed = 'true'::text
+GROUP BY counts.survey_id), 
+
+total AS (
+SELECT counts.survey_id, sum(counts.seals) AS num_total
+FROM counts
+GROUP BY counts.survey_id)
+
+SELECT row_number() OVER (ORDER BY a.survey_id, a.image_name)::integer AS id,
+    row_number() OVER (PARTITION BY a.survey_id ORDER BY a.survey_id, a.image_name)::integer AS in_group_id,
+    a.survey_id,
+    a.image_name,
+    a.camera,
+    a.seals::integer AS seals,
+        CASE
+            WHEN row_number() OVER (PARTITION BY a.survey_id ORDER BY a.survey_id, a.image_name)::integer = 1 THEN total.num_total - suppressed.num_suppressed
+            ELSE 0::numeric
+        END::integer AS total,
+    a.geom
+   FROM ( SELECT counts.survey_id,
+            counts.image_name,
+            counts.camera,
+            sum(counts.seals) AS seals,
+            counts.geom
+           FROM counts
+          GROUP BY counts.survey_id, counts.image_name, counts.camera, counts.geom) a
+     LEFT JOIN total USING (survey_id)
+     LEFT JOIN suppressed USING (survey_id);
+	  
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------
+All below this is the old (and incorrect) approach
+--------------------------------------------------------------------
+CREATE OR REPLACE VIEW surv_pv_gla.qa_images_latte_overlapping
+ AS
+ SELECT DISTINCT
+        CASE
+            WHEN x.dt1 > x.dt2 THEN x.image1
+            ELSE x.image2
+        END AS drop_image
+   FROM ( SELECT a.survey_id,
+            a.image_name AS image1,
+            b.image_name AS image2,
+            a.dt AS dt1,
+            b.dt AS dt2,
+            abs("right"(a.dt, 13)::numeric - "right"(b.dt, 13)::numeric) AS dt_diff,
+            round((100::double precision * st_area(st_intersection(a.geom, b.geom)) / st_area(a.geom))::numeric, 0) AS pc_overlap
+           FROM ( SELECT f.image_name,
+                    f.dt,
+                    m.survey_id,
+                    f.geom
+                   FROM surv_pv_gla.geo_images_footprint f
+                     JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+                  WHERE m.survey_id::text <> 'do_not_use'::text AND m.survey_id::text ~~ '%sample%'::text AND f.image_type = 'rgb_image'::text) a
+             LEFT JOIN ( SELECT f.image_name,
+                    f.dt,
+                    m.survey_id,
+                    f.geom
+                   FROM surv_pv_gla.geo_images_footprint f
+                     JOIN surv_pv_gla.geo_images_meta m USING (flight, camera_view, dt)
+                  WHERE m.survey_id::text <> 'do_not_use'::text AND m.survey_id::text ~~ '%sample%'::text AND f.image_type = 'rgb_image'::text) b ON a.geom && b.geom AND st_relate(a.geom, b.geom, '2********'::text)
+          WHERE a.image_name <> b.image_name AND a.survey_id::text = b.survey_id::text AND round((100::double precision * st_area(st_intersection(a.geom, b.geom)) / st_area(a.geom))::numeric, 0) > (- 1::numeric) AND abs("right"(a.dt, 13)::numeric - "right"(b.dt, 13)::numeric) > 3::numeric
+          ORDER BY a.survey_id, a.image_name) x;
+
+
 CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte_manualreview
  AS
  SELECT f.project_id,
@@ -136,7 +276,7 @@ CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte_modelreview
 
 
 
-CREATE VIEW surv_pv_gla.geo_images_footprint_latte AS
+CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_latte AS
 WITH footprints AS
 (SELECT *
 FROM surv_pv_gla.geo_images_footprint_latte_manualreview
@@ -163,10 +303,10 @@ FROM counts
 GROUP BY survey_id)
 
 SELECT row_number() OVER (ORDER BY survey_id, image_name)::integer AS id,
-row_number() OVER (PARTITION BY survey_id  ORDER BY survey_id, image_name)::integer AS in_group_id, survey_id, image_name, camera, seals, 
-CASE WHEN (row_number() OVER (PARTITION BY survey_id  ORDER BY survey_id, image_name)::integer) = 1 THEN num_total - num_suppressed ELSE 0 END AS total, geom
-FROM counts
+row_number() OVER (PARTITION BY survey_id  ORDER BY survey_id, image_name)::integer AS in_group_id, survey_id, image_name, camera, seals::integer, 
+(CASE WHEN (row_number() OVER (PARTITION BY survey_id  ORDER BY survey_id, image_name)::integer) = 1 THEN num_total - num_suppressed ELSE 0 END)::integer AS total, geom
+FROM (SELECT survey_id, image_name, camera, sum(seals) AS seals, geom
+	 FROM counts
+	 GROUP BY survey_id, image_name, camera, geom) a
 LEFT JOIN total USING (survey_id)
 LEFT JOIN suppressed USING (survey_id)
-WHERE suppressed = 'false' OR suppressed IS NULL
-
