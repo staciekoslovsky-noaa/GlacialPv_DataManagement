@@ -44,11 +44,12 @@ FROM (SELECT a.survey_id,
       b.image_name AS image2,
       a.dt AS dt1,
       b.dt AS dt2,
-      abs("right"(a.dt, 13)::numeric - "right"(b.dt, 13)::numeric) AS dt_diff,
+      abs(EXTRACT(EPOCH FROM ((TO_TIMESTAMP("left"(a.dt, 15), 'YYYYMMDD_HH24MISS') - TO_TIMESTAMP("left"(b.dt, 15), 'YYYYMMDD_HH24MISS'))))) AS dt_diff,
       st_area(st_intersection(a.geom, b.geom)) AS overlap
       FROM all_prep a
       LEFT JOIN all_prep b ON a.geom && b.geom
-      WHERE a.image_name <> b.image_name AND a.survey_id::text = b.survey_id::text AND st_area(st_intersection(a.geom, b.geom)) > 0 AND abs("right"(a.dt, 13)::numeric - "right"(b.dt, 13)::numeric) > 3::numeric
+      WHERE a.image_name <> b.image_name AND a.survey_id::text = b.survey_id::text AND st_area(st_intersection(a.geom, b.geom)) > 0 
+	  AND abs(EXTRACT(EPOCH FROM ((TO_TIMESTAMP("left"(a.dt, 15), 'YYYYMMDD_HH24MISS') - TO_TIMESTAMP("left"(b.dt, 15), 'YYYYMMDD_HH24MISS'))))) > 60::numeric
       ORDER BY a.survey_id, a.image_name) x),
 
 footprints AS
@@ -95,6 +96,12 @@ SELECT row_number() OVER (ORDER BY a.survey_id, a.image_name)::integer AS id,
      LEFT JOIN total USING (survey_id)
      LEFT JOIN suppressed USING (survey_id);
 	  
+
+
+
+
+
+
 
 
 
