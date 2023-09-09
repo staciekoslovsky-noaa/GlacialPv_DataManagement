@@ -1,0 +1,8 @@
+UPDATE surv_pv_gla.tbl_images
+SET latte_overlapping = 'N';
+
+UPDATE surv_pv_gla.tbl_images
+SET latte_overlapping = 'Y'
+WHERE image_name IN (SELECT * FROM surv_pv_gla.qa_images_latte_overlapping);
+
+CREATE UNIQUE INDEX image_name_idx ON surv_pv_gla.tbl_images (image_name);
