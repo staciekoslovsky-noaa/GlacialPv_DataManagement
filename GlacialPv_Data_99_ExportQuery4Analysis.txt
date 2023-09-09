@@ -1,0 +1,31 @@
+CREATE VIEW surv_pv_gla.summ_count_by_polyid_4analysis_glacial AS
+SELECT *
+FROM (SELECT DISTINCT CASE WHEN start_dt_aklocal IS NULL THEN survey_date ELSE start_dt_aklocal + interval '8 hour' END As survey_dt_gmt, polyid, glacier_name, 
+			counting_method_for_analysis AS counting_method, c.num_seals, v.num_seals AS off_image_count, std_error as standard_error, stockid, stockname
+		FROM surv_pv_gla.tbl_event e 
+		RIGHT JOIN surv_pv_gla.tbl_counts c ON e.id = c.event_id
+		LEFT JOIN (SELECT * FROM surv_pv_gla.tbl_flyovers WHERE data_status_lku = 'C') f ON e.id = f.event_id 
+		LEFT JOIN surv_pv_gla.lku_survey_method USING (survey_method_lku)
+		LEFT JOIN surv_pv_gla.lku_count_type USING (count_type_lku)
+		LEFT JOIN surv_pv_gla.lku_site USING (site_lku)
+		LEFT JOIN surv_pv_gla.geo_glaciers USING (polyid)
+		LEFT JOIN (SELECT event_id, num_seals FROM surv_pv_gla.tbl_counts WHERE count_type_lku = 'V' AND num_seals > 0) v ON v.event_id = c.event_id
+		WHERE count_type_lku <> 'V'
+	UNION
+	  SELECT DISTINCT CASE WHEN start_dt_aklocal IS NULL THEN survey_date ELSE start_dt_aklocal + interval '8 hour' END As survey_dt_gmt, polyid, glacier_name, 
+			counting_method_for_analysis AS counting_method, NULL::numeric AS num_seals, num_seals AS off_image_count, std_error as standard_error, stockid, stockname
+		FROM surv_pv_gla.tbl_event e 
+		LEFT JOIN surv_pv_gla.tbl_counts c ON e.id = c.event_id
+		LEFT JOIN (SELECT * FROM surv_pv_gla.tbl_flyovers WHERE data_status_lku = 'C') f ON e.id = f.event_id 
+		LEFT JOIN surv_pv_gla.lku_survey_method USING (survey_method_lku)
+		LEFT JOIN surv_pv_gla.lku_count_type USING (count_type_lku)
+		LEFT JOIN surv_pv_gla.lku_site USING (site_lku)
+		LEFT JOIN surv_pv_gla.geo_glaciers USING (polyid)
+		WHERE count_type_lku = 'V' AND num_seals = 0 AND polyid IS NOT NULL AND counting_method_for_analysis = 'Visual estimate'
+  	UNION
+	  SELECT survey_dt AS survey_dt_gmt, polyid, glacier_name, 'Oblique visual count' AS counting_method, non_pup + pup AS num_seals, NULL AS off_image_count, NULL AS std_error, stockid, stockname
+	  FROM surv_pv_cst.summ_count_by_polyid_4analysis_glacial
+	  LEFT JOIN surv_pv_gla.geo_glaciers USING (polyid)
+) all_data	  
+ORDER BY polyid, survey_dt_gmt
+		
