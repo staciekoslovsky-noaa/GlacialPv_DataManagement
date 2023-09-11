@@ -2,6 +2,10 @@
 
 This repository stores the code associated with managing glacial harbor seal survey data. Code numbered 0+ are intended to be run sequentially as the data are available for processing. Code numbered 99 are stored for longetivity, but are intended to only be run once to address a specific issue or run as needed, depending on the intent of the code.
 
+The Datasheets folder contains the KAMERA-specific datasheets for glacial surveys.
+
+The LEGACYcode folder contains outdated code, kept for archive.
+
 The data management processing code is as follows:
 * **GlacialPv_Data_01_ProcessData2DB.R** - code for importing KAMERA-collected glacial survey data into the DB 
 * **GlacialPv_Data_01_ProcessFootprints2DB.R** - code for importing post-processing footprints into the DB
