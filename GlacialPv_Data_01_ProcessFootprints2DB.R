@@ -28,7 +28,7 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               user = Sys.getenv("pep_admin"), 
                               password = Sys.getenv("admin_pw"))
 
-# RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.geo_images_footprint")
+RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.geo_images_footprint")
 
 # Process data
 for (k in 1:length(years)) {
@@ -38,9 +38,11 @@ for (k in 1:length(years)) {
   dir <- list.dirs(paste(wd, year, sep = "/"), full.names = FALSE, recursive = FALSE)
   dir <- data.frame(path = dir[grep("fl", dir)], stringsAsFactors = FALSE) %>%
     filter(stringr::str_starts(path, 'fl')) %>%
+    filter(stringr::str_ends(path, '[0-9][0-9]')) %>%
     mutate(path = paste(wd, "\\", year, "\\", path, "\\processed_results\\fov_shapefiles", sep = ""))
   
   for (j in 1:nrow(dir)) {
+    # if(dir$path[j] == 'L:/jobss_2021\\fl07\\processed_results\\fov_shapefiles') next 
     # if(dir$path[j] == 'L:/jobss_2021\\fl07\\processed_results\\fov_shapefiles') next 
     
     shps <- list.files(path = dir$path[j], pattern = "shp", full.names = TRUE)
@@ -83,6 +85,7 @@ for (k in 1:length(years)) {
   }
 }
 
+RPostgreSQL::dbSendQuery(con, "DROP INDEX surv_pv_gla.geo_images_footprint_idx")
 RPostgreSQL::dbSendQuery(con, "CREATE INDEX geo_images_footprint_idx ON surv_pv_gla.geo_images_footprint USING GIST (geom)")
 
 RPostgreSQL::dbDisconnect(con)
