@@ -21,8 +21,8 @@ Processing code for LATTE data includes:
 * **GlacialPv_LATTE_99_CompareDetections.Rmd** - code for generating a report to compare counting methods of LATTE data (this was important and necessary before we decided on a processing method); this was a one-time process for evaluating methods
 * **GlacialPv_LATTE_99_CreateFootprintViews.txt** - code for generating the queries used for exporting footprints4analysis; the DB stores the queries; code to be run in PGAdmin
 
-Processing code for mosaic data includes:
-* **GlacialPv_Mosaic_01_PrepareData4Pix4D.R** - code to prepare mosaic data for Pix4D; this is probably outdated code that will not be used; still working on identifying our processing steps for these data
+Processing code for COCOA data includes:
+* **GlacialPv_COCOA_01_PrepareData4Viame.R** - code to prepare COCOA data for Viame; exports image lists, annotation files (with viewing grids) and a subset footprint shapefile
 
 Other code in the repository includes:
 * Code for generating footprints (based on older processing steps before moving to the KAMERA system):
