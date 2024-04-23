@@ -16,8 +16,10 @@ The data management processing code is as follows:
 Processing code for LATTE data includes:
 * **GlacialPv_LATTE_00_MarkOverlappingImages.txt** - code to identify which LATTE images from a survey overlap with images from earlier in the survey; this needs to be run after all other data processing steps are complete and before LATTE processing begins; code is to be run in PGAdmin
 * **GlacialPv_LATTE_01_PrepareData4Viame.R** - code to prepare data for use in VIAME; exports image lists that will either be run through detection models and reviewed for seals or manually reviewed for seals (depending on the availability of corresponding thermal images)
-(AFTER ANNOTATION-SPECIFIC PROCESSING IS COMPLETE: detections reviewed; manual review completed; detections have been imported into the DB and exported for post-processing; post-processing has been completed, including the import of footprints)
-* **GlacialPv_LATTE_02_ExportFootprints4Analysis.R** - code for exporting footprints in the necessary format for the LATTE abundance estimates
+* **GlacialPv_LATTE_02_ImportProcessedRGB2DB_byYear.R** - imports processed RGB detections to the DB by year and by survey area
+* **GlacialPv_LATTE_03_ExportData4PostProcessing.R** - exports reformatted processed RGB detections and associated image lists (exported by flight, rather than by survey area) for running the data through the KAMERA post-processing script
+* **GlacialPv_LATTE_04_ImportDetectionShp2DB.R** - imports the detection shapefiles (output from KAMERA post-processing) into the DB for further processing in the glacial project
+* **GlacialPv_LATTE_05_ExportFootprints4Analysis.R** - code for exporting footprints in the necessary format for the LATTE abundance estimates
 * **GlacialPv_LATTE_99_CompareDetections.Rmd** - code for generating a report to compare counting methods of LATTE data (this was important and necessary before we decided on a processing method); this was a one-time process for evaluating methods
 * **GlacialPv_LATTE_99_CreateFootprintViews.txt** - code for generating the queries used for exporting footprints4analysis; the DB stores the queries; code to be run in PGAdmin
 
