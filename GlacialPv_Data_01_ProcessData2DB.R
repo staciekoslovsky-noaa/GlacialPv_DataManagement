@@ -1,7 +1,11 @@
 # Glacial Pv: Process Data/Images to DB
 
 # Variables ------------------------------------------------------
-years <- c(2020, 2021)
+years <- c(
+  #2020, 
+  #2021, 
+  2024
+  )
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
@@ -26,10 +30,10 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               dbname = Sys.getenv("pep_db"), 
                               host = Sys.getenv("pep_ip"), 
                               user = Sys.getenv("pep_admin"), 
-                              rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
+                              password = Sys.getenv("admin_pw"))
 
-RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.tbl_images")
-RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.geo_images_meta")
+# RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.tbl_images WHERE image_name LIKE \'glacial_2024%\'")
+# RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.geo_images_meta WHERE meta_file LIKE \'glacial_2024%\'")
 
 # Set initial working directory
 wd <- "//akc0ss-n086/NMML_Polar_Imagery/Surveys_HS/Glacial/Originals"
@@ -41,7 +45,7 @@ for (i in 1:length(years)){
   dir <- list.dirs(wd_year, full.names = TRUE, recursive = FALSE)
 
   dir <- list.dirs(dir, full.names = TRUE, recursive = FALSE)
-  dir <- data.frame(path = dir[grep("mm", dir)], stringsAsFactors = FALSE)
+  dir <- data.frame(path = dir[grep("deg", dir)], stringsAsFactors = FALSE)
   
   image_dir <- merge(dir, c("left_view", "center_view", "right_view"), ALL = true)
   colnames(image_dir) <- c("path", "camera_loc")
@@ -77,13 +81,15 @@ for (i in 1:length(years)){
     if (nrow(meta) > 1) {
       for (k in 1:nrow(meta)){
         meta_file <- paste(image_dir$camera_dir[j], meta$image_name[k], sep = "/")
-        metaJ <- data.frame(rjson::fromJSON(paste(readLines(meta_file), collapse="")), stringsAsFactors = FALSE)
-        metaJ$meta_file <- basename(meta_file)
-        metaJ$dt <- paste(sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[5]]), sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[6]]), sep = "_") 
-        metaJ$flight <- sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[3]]) 
-        metaJ$camera_view <- sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[4]]) 
-        metaJ$camera_model <- basename(image_dir$path[i])
-        meta2DB <- plyr::rbind.fill(meta2DB, metaJ)
+        file.info(meta_file)$size
+        if (file.info(meta_file)$size > 0) {
+          metaJ <- data.frame(rjson::fromJSON(paste(readLines(meta_file), collapse="")), stringsAsFactors = FALSE)
+          metaJ$meta_file <- basename(meta_file)
+          metaJ$dt <- paste(sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[5]]), sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[6]]), sep = "_") 
+          metaJ$flight <- sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[3]]) 
+          metaJ$camera_view <- sapply(strsplit(metaJ$meta_file, "_"), function(x) x[[4]]) 
+          metaJ$camera_model <- basename(image_dir$path[i])
+          meta2DB <- plyr::rbind.fill(meta2DB, metaJ)} else next
       }
     }
   }
@@ -103,6 +109,9 @@ for (i in 1:length(years)){
     meta2DB$effort <- ifelse(meta2DB$dt <= '20200902_002000' & meta2DB$flight == 'fl01', 'OFF', meta2DB$effort)
     meta2DB$effort <- ifelse(meta2DB$dt == '20200902_011733.748910' & meta2DB$flight == 'fl01', 'ON', meta2DB$effort)
     meta2DB$effort <- ifelse(meta2DB$dt < '20200904_001000' & meta2DB$flight == 'fl03', 'OFF', meta2DB$effort)
+  }
+  if (years[i] == 2024){
+    meta2DB$sys_cfg <- ifelse(meta2DB$flight == "fl09", "images_21deg_N56RF", meta2DB$sys_cfg)
   }
   
   # Assign survey ID to flight segments

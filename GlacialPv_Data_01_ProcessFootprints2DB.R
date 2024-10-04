@@ -3,7 +3,11 @@
 
 # Define variables
 wd <- "I:/Surveys_HS/Glacial/Originals"
-years <- c(2020, 2021)
+years <- c(
+  #2020, 
+  #2021, 
+  2024
+)
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
@@ -28,7 +32,7 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               user = Sys.getenv("pep_admin"), 
                               password = Sys.getenv("admin_pw"))
 
-RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.geo_images_footprint")
+RPostgreSQL::dbSendQuery(con, "DELETE FROM surv_pv_gla.geo_images_footprint WHERE image_name LIKE \'%glacial_2024%\'")
 
 # Process data
 for (k in 1:length(years)) {
@@ -47,40 +51,40 @@ for (k in 1:length(years)) {
     
     shps <- list.files(path = dir$path[j], pattern = "shp", full.names = TRUE)
     
-    for (i in 1:length(shps)) {
-      
-      if(RPostgreSQL::dbGetQuery(con, "SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = \'surv_pv_gla\' AND tablename  = \'geo_images_footprint\')") == FALSE) {
-        next_id$max = 0
-      } else {
-        next_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM surv_pv_gla.geo_images_footprint")
-        next_id$max <- ifelse(length(which(!is.na(next_id$max))) == 0, 1, next_id$max + 1)
+    if (length(shps) > 0){
+      for (i in 1:length(shps)) {
+        
+        if(RPostgreSQL::dbGetQuery(con, "SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = \'surv_pv_gla\' AND tablename  = \'geo_images_footprint\')") == FALSE) {
+          next_id$max = 0
+        } else {
+          next_id <- RPostgreSQL::dbGetQuery(con, "SELECT max(id) FROM surv_pv_gla.geo_images_footprint")
+          next_id$max <- ifelse(length(which(!is.na(next_id$max))) == 0, 1, next_id$max + 1)
+        }
+        
+        shape <- sf::st_read(shps[i])
+        shape <- shape %>%
+          dplyr::rename(geom = geometry,
+                        image_name = image_file) %>%
+          mutate(id = 1:nrow(shape) + next_id$max,
+                 image_name = as.character(basename(image_name)),
+                 effort = as.character(effort),
+                 trigger = as.character(trigger),
+                 reviewed = as.character(reviewed),
+                 fate = as.character(fate)) %>%
+          mutate(flight = str_extract(image_name, "fl[0-9][0-9]"),
+                 camera_view = substring(str_extract(image_name, "_[A-Z]_"), 2, 2),
+                 dt = str_extract(image_name, "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]"),
+                 image_type = ifelse(grepl("rgb", image_name) == TRUE, "rgb_image", 
+                                     ifelse(grepl("ir", image_name) == TRUE, "ir_image",
+                                            ifelse(grepl("uv", image_name) == TRUE, "uv_image", "unknown"))),
+                 project_id = paste0("glacial_", year)
+                 
+          ) %>%
+          select(id, project_id, flight, camera_view, dt, image_type, image_name, time, latitude, longitude, altitude, heading, pitch, roll, effort, trigger, reviewed, fate, geom)
+        
+        # Write data to DB
+        sf::st_write(shape, con, c("surv_pv_gla", "geo_images_footprint"), append = TRUE)
       }
-      
-      shape <- sf::st_read(shps[i])
-      shape <- shape %>%
-        rename(
-          geom = geometry, 
-          image_name = image_file
-        ) %>%
-        mutate(id = 1:n() + next_id$max,
-               image_name = as.character(image_name),
-               effort = as.character(effort),
-               trigger = as.character(trigger),
-               reviewed = as.character(reviewed),
-               fate = as.character(fate)) %>%
-        mutate(flight = str_extract(image_name, "fl[0-9][0-9]"),
-               camera_view = substring(str_extract(image_name, "_[A-Z]_"), 2, 2),
-               dt = str_extract(image_name, "[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9].[0-9][0-9][0-9][0-9][0-9][0-9]"),
-               image_type = ifelse(grepl("rgb", image_name) == TRUE, "rgb_image", 
-                                   ifelse(grepl("ir", image_name) == TRUE, "ir_image",
-                                          ifelse(grepl("uv", image_name) == TRUE, "uv_image", "unknown"))),
-               project_id = paste0("glacial_", year)
-               
-        ) %>%
-        select(id, project_id, flight, camera_view, dt, image_type, image_name, time, latitude, longitude, altitude, heading, pitch, roll, effort, trigger, reviewed, fate, geom)
-      
-      # Write data to DB
-      sf::st_write(shape, con, c("surv_pv_gla", "geo_images_footprint"), append = TRUE)
     }
   }
 }

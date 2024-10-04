@@ -154,6 +154,128 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210901_targetedmosaic_2'\ WHERE flight = \'fl16\' AND dt >= \'20210901_235600\' AND dt <= \'20210901_235759\' AND effort = \'ON\'")
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy_20210901_fullmosaic_1'\ WHERE flight = \'fl16\' AND dt >= \'20210902_000100\' AND dt <= \'20210902_000559\' AND effort = \'ON\'")
 
+#### 2024 data
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger1'\ WHERE flight = \'fl01\' AND dt >= \'20240805_225500\' AND dt <= \'20240805_230159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger2'\ WHERE flight = \'fl01\' AND dt >= \'20240805_230300\' AND dt <= \'20240805_230559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger3'\ WHERE flight = \'fl01\' AND dt >= \'20240805_231100\' AND dt <= \'20240805_231459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'chenega1'\ WHERE flight = \'fl01\' AND dt >= \'20240805_232200\' AND dt <= \'20240805_232459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'chenega2'\ WHERE flight = \'fl01\' AND dt >= \'20240805_232900\' AND dt <= \'20240805_233159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'chenega3'\ WHERE flight = \'fl01\' AND dt >= \'20240805_233500\' AND dt <= \'20240805_233759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'nellie_juan1'\ WHERE flight = \'fl01\' AND dt >= \'20240806_000000\' AND dt <= \'20240806_000259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale1'\ WHERE flight = \'fl01\' AND dt >= \'20240806_002800\' AND dt <= \'20240806_003059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale2'\ WHERE flight = \'fl01\' AND dt >= \'20240806_003700\' AND dt <= \'20240806_004059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard1'\ WHERE flight = \'fl01\' AND dt >= \'20240806_004600\' AND dt <= \'20240806_004959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard2'\ WHERE flight = \'fl01\' AND dt >= \'20240806_005600\' AND dt <= \'20240806_005959\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering1'\ WHERE flight = \'fl02\' AND dt >= \'20240806_232700\' AND dt <= \'20240806_234559\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mccarty1'\ WHERE flight = \'fl03\' AND dt >= \'20240811_213400\' AND dt <= \'20240811_213559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mccarty2'\ WHERE flight = \'fl03\' AND dt >= \'20240811_213700\' AND dt <= \'20240811_213859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'northwestern1'\ WHERE flight = \'fl03\' AND dt >= \'20240811_220800\' AND dt <= \'20240811_220959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'holgate1'\ WHERE flight = \'fl03\' AND dt >= \'20240811_222100\' AND dt <= \'20240811_222259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'aialik1'\ WHERE flight = \'fl03\' AND dt >= \'20240811_223100\' AND dt <= \'20240811_223259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'aialik2'\ WHERE flight = \'fl03\' AND dt >= \'20240811_223600\' AND dt <= \'20240811_223859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bearlake1'\ WHERE flight = \'fl03\' AND dt >= \'20240811_225300\' AND dt <= \'20240811_231959\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'blackstone1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_205200\' AND dt <= \'20240812_205359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'blackstone2'\ WHERE flight = \'fl04\' AND dt >= \'20240812_205500\' AND dt <= \'20240812_205859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbia1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_212600\' AND dt <= \'20240812_220359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbia2'\ WHERE flight = \'fl04\' AND dt >= \'20240812_220500\' AND dt <= \'20240812_221359\' AND effort = \'ON\'") # check start time!
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_221800\' AND dt <= \'20240812_221959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares2'\ WHERE flight = \'fl04\' AND dt >= \'20240812_222100\' AND dt <= \'20240812_222359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares3'\ WHERE flight = \'fl04\' AND dt >= \'20240812_222500\' AND dt <= \'20240812_222759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_223400\' AND dt <= \'20240812_223659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale2'\ WHERE flight = \'fl04\' AND dt >= \'20240812_223800\' AND dt <= \'20240812_224159\' AND effort = \'ON\'") # check start time
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_224600\' AND dt <= \'20240812_230559\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barryarm1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_231500\' AND dt <= \'20240812_231659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barryarm2'\ WHERE flight = \'fl04\' AND dt >= \'20240812_232000\' AND dt <= \'20240812_232159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_232700\' AND dt <= \'20240812_232759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise2'\ WHERE flight = \'fl04\' AND dt >= \'20240812_232800\' AND dt <= \'20240812_232959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise3'\ WHERE flight = \'fl04\' AND dt >= \'20240812_233000\' AND dt <= \'20240812_233259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'nelliejuan1'\ WHERE flight = \'fl04\' AND dt >= \'20240812_235200\' AND dt <= \'20240812_235359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'chenega1'\ WHERE flight = \'fl04\' AND dt >= \'20240813_000100\' AND dt <= \'20240813_001159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger1'\ WHERE flight = \'fl04\' AND dt >= \'20240813_002300\' AND dt <= \'20240813_002459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'ellsworth'\ WHERE flight = \'fl04\' AND dt >= \'20240813_004000\' AND dt <= \'20240813_004459\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mccarty1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_195600\' AND dt <= \'20240813_195659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'northwestern1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_200700\' AND dt <= \'20240813_200859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'holgate1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_201200\' AND dt <= \'20240813_201359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'pedersen1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_201600\' AND dt <= \'20240813_201759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'aialik1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_202200\' AND dt <= \'20240813_202359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bearlake1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_202900\' AND dt <= \'20240813_210459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'ellsworth1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_210600\' AND dt <= \'20240813_212159\' AND effort = \'ON\'") # check start time
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'excelsior1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_213000\' AND dt <= \'20240813_213459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'excelsior2'\ WHERE flight = \'fl05\' AND dt >= \'20240813_213500\' AND dt <= \'20240813_213659\' AND effort = \'ON\'") # check start time
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'blackstone1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_215300\' AND dt <= \'20240813_215459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_220700\' AND dt <= \'20240813_220959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barryarm1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_221500\' AND dt <= \'20240813_221659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barryarm2'\ WHERE flight = \'fl05\' AND dt >= \'20240813_222000\' AND dt <= \'20240813_222259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_223300\' AND dt <= \'20240813_223459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares2'\ WHERE flight = \'fl05\' AND dt >= \'20240813_223700\' AND dt <= \'20240813_223859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbiane1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_224700\' AND dt <= \'20240813_232059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbianw1'\ WHERE flight = \'fl05\' AND dt >= \'20240813_232700\' AND dt <= \'20240813_232859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbianw2'\ WHERE flight = \'fl05\' AND dt >= \'20240813_232900\' AND dt <= \'20240813_233159\' AND effort = \'ON\'") # check start time
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbianw3'\ WHERE flight = \'fl05\' AND dt >= \'20240813_233200\' AND dt <= \'20240813_233559\' AND effort = \'ON\'") # check start time
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay1'\ WHERE flight = \'fl07\' AND dt >= \'20240814_005300\' AND dt <= \'20240814_013959\' AND effort = \'ON\'") 
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering1'\ WHERE flight = \'fl08\' AND dt >= \'20240816_215800\' AND dt <= \'20240816_221959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy1'\ WHERE flight = \'fl08\' AND dt >= \'20240816_225700\' AND dt <= \'20240817_001859\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mcbride1'\ WHERE flight = \'fl09\' AND dt >= \'20240817_21XX00\' AND dt <= \'20240817_21XX59\' AND effort = \'ON\'") # get start/end from footprints
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mcbride2'\ WHERE flight = \'fl09\' AND dt >= \'20240817_215700\' AND dt <= \'20240817_215759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mcbride3'\ WHERE flight = \'fl09\' AND dt >= \'20240817_220000\' AND dt <= \'20240817_220159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mcbride4'\ WHERE flight = \'fl09\' AND dt >= \'20240817_220600\' AND dt <= \'20240817_220659\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'margerie1'\ WHERE flight = \'fl09\' AND dt >= \'20240817_222800\' AND dt <= \'20240817_223159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi1'\ WHERE flight = \'fl09\' AND dt >= \'20240817_223700\' AND dt <= \'20240817_223859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi2'\ WHERE flight = \'fl09\' AND dt >= \'20240817_224000\' AND dt <= \'20240817_224359\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy1'\ WHERE flight = \'fl10\' AND dt >= \'20240818_214300\' AND dt <= \'20240818_231459\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay1'\ WHERE flight = \'fl11\' AND dt >= \'20240820_200300\' AND dt <= \'20240820_205459\' AND effort = \'ON\'")
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_205000\' AND dt <= \'20240821_205459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte2'\ WHERE flight = \'fl12\' AND dt >= \'20240821_205700\' AND dt <= \'20240821_210259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_212600\' AND dt <= \'20240821_213059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_214800\' AND dt <= \'20240821_215159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mcbride1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_224700\' AND dt <= \'20240821_224959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'margerie1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_230500\' AND dt <= \'20240821_2320459\' AND effort = \'ON\'") # check DB for # of flyovers
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'jhi1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_232400\' AND dt <= \'20240821_233459\' AND effort = \'ON\'") # check DB for # of flyovers
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte1'\ WHERE flight = \'fl13\' AND dt >= \'20240823_211200\' AND dt <= \'20240823_211759\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte2'\ WHERE flight = \'fl13\' AND dt >= \'20240823_211900\' AND dt <= \'20240823_212359\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte3'\ WHERE flight = \'fl13\' AND dt >= \'20240823_212300\' AND dt <= \'20240823_213559\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott1'\ WHERE flight = \'fl13\' AND dt >= \'20240823_220600\' AND dt <= \'20240823_220959\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'endicott2'\ WHERE flight = \'fl13\' AND dt >= \'20240823_221000\' AND dt <= \'20240823_221459\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy1'\ WHERE flight = \'fl13\' AND dt >= \'20240823_223600\' AND dt <= \'20240823_223959\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tracy2'\ WHERE flight = \'fl13\' AND dt >= \'20240823_224400\' AND dt <= \'20240823_224759\' AND effort = \'ON\'") 
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_204000\' AND dt <= \'20240825_204359\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'meares2'\ WHERE flight = \'fl14\' AND dt >= \'20240825_204500\' AND dt <= \'20240825_204759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_205100\' AND dt <= \'20240825_205459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'yale2'\ WHERE flight = \'fl14\' AND dt >= \'20240825_205700\' AND dt <= \'20240825_205959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_210200\' AND dt <= \'20240825_210359\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard2'\ WHERE flight = \'fl14\' AND dt >= \'20240825_210500\' AND dt <= \'20240825_210759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard3?'\ WHERE flight = \'fl14\' AND dt >= \'20240825_211000\' AND dt <= \'20240825_211259\' AND effort = \'ON\'") # labelled 2 on the data form, but looks like maybe 3 passes?
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barry1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_211900\' AND dt <= \'20240825_212159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barry2'\ WHERE flight = \'fl14\' AND dt >= \'20240825_212300\' AND dt <= \'20240825_212459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'barry3?'\ WHERE flight = \'fl14\' AND dt >= \'20240825_212600\' AND dt <= \'20240825_212859\' AND effort = \'ON\'") # labelled 2 on the data form, but looks like maybe 3 passes?
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_213000\' AND dt <= \'20240825_213159\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'surprise2?'\ WHERE flight = \'fl14\' AND dt >= \'20240825_213300\' AND dt <= \'20240825_213459\' AND effort = \'ON\'") # labelled 1 on the data form, but looks like maybe 2 passes?
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'nelliejuan1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_215500\' AND dt <= \'20240825_220059\' AND effort = \'ON\'") # double-check this is just one pass in DB
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'chenega1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_220800\' AND dt <= \'20240825_221459\' AND effort = \'ON\'") # double-check this is just one pass in DB
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_221600\' AND dt <= \'20240825_221859\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'excelsior1'\ WHERE flight = \'fl14\' AND dt >= \'20240825_222500\' AND dt <= \'20240825_22XX59\' AND effort = \'ON\'") # get end time from footprints
+
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'mccarty1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_201600\' AND dt <= \'20240826_201759\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'northwestern1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_202800\' AND dt <= \'20240826_203059\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'northwestern2'\ WHERE flight = \'fl15\' AND dt >= \'20240826_203000\' AND dt <= \'20240826_203259\' AND effort = \'ON\'") # overlapping start time; need to go to seconds, most likely
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'holgate1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_204800\' AND dt <= \'20240826_204959\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'excelsior1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_211000\' AND dt <= \'20240826_211259\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bainbridge1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_212900\' AND dt <= \'20240826_213459\' AND effort = \'ON\'") # confirm one survey_id with three transects
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_213800\' AND dt <= \'20240826_214359\' AND effort = \'ON\'") # confirm one survey_id with two transects
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'nelliejuan1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_215000\' AND dt <= \'20240826_215459\' AND effort = \'ON\'") # confirm one survey_id with two transects
+
 
 #### Update any remaining data
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'do_not_use\' WHERE survey_id IS NULL") 
