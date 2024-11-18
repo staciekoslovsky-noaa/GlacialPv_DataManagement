@@ -1,5 +1,5 @@
 DELETE FROM surv_pv_gla.geo_glaciers;
 
 INSERT INTO surv_pv_gla.geo_glaciers 
-SELECT * FROM surv_pv_cst.geo_polys 
+SELECT id, polyid, stockid, stockname, geom, glacier_name FROM surv_pv_cst.geo_polys 
 WHERE glacier_name IS NOT NULL;
