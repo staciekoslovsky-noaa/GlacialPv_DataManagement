@@ -1,5 +1,5 @@
 # In Flight System: Process Data/Images to DB
-# S. Hardy
+# S. Koslovsky
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
@@ -96,7 +96,8 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'harvard_20200910_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl10\' AND dt >= \'20200910_201800\' AND dt <= \'20200910_204559\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbia_20200910_sample_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl10\' AND dt >= \'20200910_205200\' AND dt <= \'20200910_215159\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering_20200910_targetedmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl10\' AND dt >= \'20200910_230300\' AND dt <= \'20200910_230459\'") 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering_20200910_targetedmosaic_2\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl10\' AND dt >= \'20200910_230600\' AND dt <= \'20200910_232859\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering_20200910_targetedmosaic_2\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl10\' AND dt >= \'20200910_230600\' AND dt <= \'20200910_231659\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering_20200910_targetedmosaic_3\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl10\' AND dt >= \'20200910_231800\' AND dt <= \'20200910_232859\'") 
 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'aialik_20200911_targetedmosaic_1\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl11\' AND dt >= \'20200911_202000\' AND dt <= \'20200911_202135\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'aialik_20200911_targetedmosaic_2\' WHERE evt_header_frame_id = \'ins_evt\' AND flight = \'fl11\' AND dt >= \'20200911_202200\' AND dt <= \'20200911_202259\'") 
@@ -237,7 +238,8 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy_20240818_sample_1'\ WHERE flight = \'fl10\' AND dt >= \'20240818_214300\' AND dt <= \'20240818_231459\' AND effort = \'ON\'")
 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20240820_sample_1'\ WHERE flight = \'fl11\' AND dt >= \'20240820_200300\' AND dt <= \'20240820_205459\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20240820_sample_1'\ WHERE flight = \'fl11\' AND dt >= \'20240820_200300\' AND dt <= \'20240820_203307\' AND effort = \'ON\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20240820_sample_1'\ WHERE flight = \'fl11\' AND dt >= \'20240820_203344\' AND dt <= \'20240820_205459\' AND effort = \'ON\'")
 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte_20240821_fullcount_1'\ WHERE flight = \'fl12\' AND dt >= \'20240821_205000\' AND dt <= \'20240821_205459\' AND effort = \'ON\'")
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'leconte_20240821_fullcount_2'\ WHERE flight = \'fl12\' AND dt >= \'20240821_205700\' AND dt <= \'20240821_210259\' AND effort = \'ON\'")
