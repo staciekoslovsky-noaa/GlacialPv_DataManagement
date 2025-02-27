@@ -1,0 +1,16 @@
+CREATE OR REPLACE VIEW surv_pv_gla.geo_images_footprint_cocoa_overlapping AS
+SELECT row_number() OVER (ORDER BY f1.survey_id, f1.image_name)::integer AS id,
+    f1.project_id,
+    f1.flight,
+	f1.survey_id,
+    f1.image_name AS f1_image_name,
+    f2.image_name AS f2_image_name, 
+	st_intersection(f1.geom, f2.geom) AS overlap
+FROM surv_pv_gla.geo_images_footprint_cocoa f1
+INNER JOIN surv_pv_gla.geo_images_footprint_cocoa f2 ON 
+   (f1.geom && f2.geom AND ST_Relate(f1.geom, f2.geom, '2********'))
+WHERE f1.id != f2.id -- does not self-join
+AND f1.survey_id = f2.survey_id  -- only evaluates within a survey_id
+AND f1.camera_view <> f2.camera_view -- only looks across camera_views (not within; captured in post-processing)
+AND f1.camera_view = 'C' -- limits matches to L and R overlapping with C camera view (OK since only looking at cross-camera view overlap in this query)
+AND f1.survey_id IN (SELECT DISTINCT survey_id FROM surv_pv_gla.geo_detections_cocoa) -- only surveys where there are detections in DB

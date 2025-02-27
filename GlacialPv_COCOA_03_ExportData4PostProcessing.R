@@ -17,8 +17,8 @@ install_pkg("tidyverse")
 
 # Run code -------------------------------------------------------
 # Set variables
-project_id = 'glacial_2021'
-#project_id = 'glacial_2020'
+#project_id = 'glacial_2021'
+project_id = 'glacial_2020'
 
 # Extract data from DB ------------------------------------------------------------------
 con <- RPostgreSQL::dbConnect(PostgreSQL(), 
@@ -28,15 +28,16 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               password = Sys.getenv("admin_pw"))
 
 annotations <- RPostgreSQL::dbGetQuery(con, paste0("SELECT *
-                                                    FROM surv_pv_gla.annotations_4postprocessing_latte_seals
+                                                    FROM surv_pv_gla.annotations_4postprocessing_cocoa_seals
                                                     WHERE project_id = \'", project_id, "\'"))
                                        
 images <- RPostgreSQL::dbGetQuery(con, paste0("SELECT image_name, image_dir
-                                                    FROM surv_pv_gla.annotations_4postprocessing_latte_images
+                                                    FROM surv_pv_gla.annotations_4postprocessing_cocoa_images
                                                     WHERE project_id = \'", project_id, "\'"))
                                   
 datasets <- annotations %>%
   select(flight, camera_view, project_id) %>%
+  #filter(flight == 'fl06' | flight == 'fl07') %>% # included for testing/developing the process, not part of final process for QA/QC of COCOA data
   unique()
 
 annotations_withPath <- annotations %>%
@@ -51,7 +52,7 @@ for (i in 1:nrow(datasets)){
     filter(flight == datasets$flight[i] & camera_view == datasets$camera_view[i] & project_id == datasets$project_id[i]) %>%
     select(-flight, -camera_view, -project_id, -image_dir)
   
-  write.table(annotations_subset, paste0("C:\\smk\\", datasets$project_id[i], '_', datasets$flight[i], '_', datasets$camera_view[i], "_sealDetections4analysis_latte_", format(Sys.Date(), '%Y%m%d'), ".csv"), row.names = FALSE, quote = FALSE, col.names = FALSE, sep = ",")
+  write.table(annotations_subset, paste0("C:\\smk\\", datasets$project_id[i], '_', datasets$flight[i], '_', datasets$camera_view[i], "_sealDetections4analysis_cocoa_", format(Sys.Date(), '%Y%m%d'), ".csv"), row.names = FALSE, quote = FALSE, col.names = FALSE, sep = ",")
 }
 
 # Disconnect for database and delete unnecessary variables ------------------------------

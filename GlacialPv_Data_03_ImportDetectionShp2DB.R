@@ -70,6 +70,8 @@ for (y in 1:length(years)){
   }
 }
 
+RPostgreSQL::dbSendQuery(con, "CREATE INDEX ON surv_pv_gla.geo_detections USING gist(geom)")
+
 RPostgreSQL::dbDisconnect(con)
 
 rm(con, next_id, shape, i, wd, install_pkg)
