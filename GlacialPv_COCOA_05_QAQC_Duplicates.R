@@ -37,17 +37,24 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_detections SET qaqc_duplic
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.tbl_detections_processed_rgb SET qaqc_duplicate = \'suppressed\' 
                          WHERE detection_id IN (SELECT detection_id FROM surv_pv_gla.geo_detections WHERE suppressed = \'true\')")
 
-# Create inxed on detection_id field to streamline processing
+# Create index on detection_id field to streamline processing
 RPostgreSQL::dbSendQuery(con, "CREATE INDEX IF NOT EXISTS index_detection_id ON surv_pv_gla.geo_detections(detection_id)")
 RPostgreSQL::dbSendQuery(con, "CREATE INDEX IF NOT EXISTS index_detection_id ON surv_pv_gla.tbl_detections_processed_rgb(detection_id)")
 
 # Identify cross-camera view duplicates and mark as such in tbl_detections_processed_rgb and geo_detections
-  ## These queries take a while to run...
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_detections SET qaqc_duplicate = \'xcamera_dupe\' 
-                         WHERE detection_id IN (SELECT detection_id FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates)")
+dupes <- RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates")
 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.tbl_detections_processed_rgb SET qaqc_duplicate = \'xcamera_dupe\' 
-                         WHERE detection_id IN (SELECT detection_id FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates)")
+for (i in 1:nrow(dupes)){
+  RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.geo_detections SET qaqc_duplicate = \'xcamera\' 
+                         WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
+  
+  RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.tbl_detections_processed_rgb SET qaqc_duplicate = \'xcamera\' 
+                         WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
+}
+
+# Assign remaining detections as not_duplicate
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_detections SET qaqc_duplicate = \'not_duplicate\' WHERE qaqc_duplicate = \'to_evaluate\'")
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.tbl_detections_processed_rgb SET qaqc_duplicate = \'not_duplicate\' WHERE qaqc_duplicate = \'to_evaluate\'")
 
 # Disconnect for database and delete unnecessary variables 
 dbDisconnect(con)
