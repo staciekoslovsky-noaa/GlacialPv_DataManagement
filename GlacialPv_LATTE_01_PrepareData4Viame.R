@@ -1,7 +1,7 @@
 # Glacial Pv Surveys: Export image lists for VIAME processing
 
 # STARTING VARIABLES (enter values as degrees)
-survey_year <- 2020
+survey_year <- 2024
 
 # Create functions -----------------------------------------------
 # Function to install packages needed

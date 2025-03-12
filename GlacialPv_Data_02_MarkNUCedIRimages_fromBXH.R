@@ -1,7 +1,8 @@
 # Process IR NuC'ed image list to DB
 
 # Variables
-image_list <- "C:\\Users\\Stacie.Hardy\\Work\\Work\\Projects\\AS_HarborSeal_Glacial\\Data\\IR_NUC\\Glacial_23NOV_MLP_NUC.txt"
+#image_list <- "C:\\Users\\Stacie.Hardy\\Work\\SMK\\Projects\\AS_HarborSeal_Glacial\\Data\\IR_NUC\\Glacial2020_23NOV_MLP_NUC.txt"
+image_list <- "C:\\Users\\Stacie.Hardy\\Work\\SMK\\Projects\\AS_HarborSeal_Glacial\\Data\\IR_NUC\\Glacial2024_irNUC_images.txt"
 update_schema <- "surv_pv_gla"
 update_table <- "tbl_images"
 update_field <- "ir_nuc"
@@ -15,7 +16,7 @@ con <- RPostgreSQL::dbConnect(PostgreSQL(),
                               dbname = Sys.getenv("pep_db"), 
                               host = Sys.getenv("pep_ip"), 
                               user = Sys.getenv("pep_admin"), 
-                              rstudioapi::askForPassword(paste("Enter your DB password for user account: ", Sys.getenv("pep_admin"), sep = "")))
+                              password = Sys.getenv("admin_pw"))
 
 # Import data and process
 ## IMAGE LIST
