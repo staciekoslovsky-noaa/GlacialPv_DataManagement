@@ -223,7 +223,7 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbia_20240813_hybrid_3'\ WHERE flight = \'fl05\' AND dt >= \'20240813_232900\' AND dt <= \'20240813_233159\' AND effort = \'ON\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'columbia_20240813_hybrid_4'\ WHERE flight = \'fl05\' AND dt >= \'20240813_233400\' AND dt <= \'20240813_233659\' AND effort = \'ON\'") 
 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20240814_sample_1'\ WHERE flight = \'fl07\' AND dt >= \'20240814_005300\' AND dt <= \'20240814_013959\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'dbay_20240814_sample_1'\ WHERE flight = \'fl07\' AND dt >= \'20240815_005300\' AND dt <= \'20240815_013959\' AND effort = \'ON\'") 
 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bering_20240816_targetedcount_1'\ WHERE flight = \'fl08\' AND dt >= \'20240816_215800\' AND dt <= \'20240816_221959\' AND effort = \'ON\'")
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'icy_20240816_sample_1'\ WHERE flight = \'fl08\' AND dt >= \'20240816_225700\' AND dt <= \'20240817_001859\' AND effort = \'ON\'")
@@ -277,7 +277,8 @@ RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'holgate_20240826_targetedcount_1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_204800\' AND dt <= \'20240826_204959\' AND effort = \'ON\'")
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'excelsior_20240826_targetedcount_1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_211000\' AND dt <= \'20240826_211259\' AND effort = \'ON\'")
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'bainbridge_20240826_targetedcount_1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_212900\' AND dt <= \'20240826_213459\' AND effort = \'ON\'") 
-RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger_20240826_fullcount_1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_213800\' AND dt <= \'20240826_214359\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger_20240826_fullcount_1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_213800\' AND dt <= \'20240826_214059\' AND effort = \'ON\'") 
+RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'tiger_20240826_fullcount_2'\ WHERE flight = \'fl15\' AND dt >= \'20240826_214100\' AND dt <= \'20240826_214359\' AND effort = \'ON\'") 
 RPostgreSQL::dbSendQuery(con, "UPDATE surv_pv_gla.geo_images_meta SET survey_id = \'nelliejuan_20240826_fullcount_1'\ WHERE flight = \'fl15\' AND dt >= \'20240826_215000\' AND dt <= \'20240826_215459\' AND effort = \'ON\'") 
 
 
