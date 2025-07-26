@@ -1,7 +1,8 @@
 # Glacial COCOA: Add glacial counts to tbl_counts
 
 # Variables ------------------------------------------------------
-project_id <- 'glacial_2020'
+#project_id <- 'glacial_2020'
+project_id <- 'glacial_2021'
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
