@@ -5,7 +5,7 @@ library(tidyverse)
 library(RPostgreSQL)
 
 # Set variables for processing
-year <- '2021'
+year <- '2024'
 
 # Set up working environment
 "%notin%" <- Negate("%in%")
