@@ -17,8 +17,7 @@ install_pkg("tidyverse")
 
 # Run code -------------------------------------------------------
 # Set variables
-project_id = 'glacial_2021'
-#project_id = 'glacial_2020'
+project_id <- 'glacial_2024'
 
 # Extract data from DB ------------------------------------------------------------------
 con <- RPostgreSQL::dbConnect(PostgreSQL(), 

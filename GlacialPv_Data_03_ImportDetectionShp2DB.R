@@ -2,7 +2,7 @@
 
 # Define variables
 wd <- "Y:/NMML_Polar_Imagery/Surveys_HS/Glacial/Originals"
-years <- c(2020, 2021)
+years <- c(2020, 2021, 2024)
 
 # Create functions -----------------------------------------------
 # Function to install packages needed

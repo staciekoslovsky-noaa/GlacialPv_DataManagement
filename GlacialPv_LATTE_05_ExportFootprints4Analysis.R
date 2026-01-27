@@ -1,15 +1,19 @@
 # Glacial Pv Surveys: Export footprint shapefiles for abundance analysis
 
 # STARTING VARIABLES
-survey_id <- c('columbia_20200909_sample_1',
-               'columbia_20200910_sample_1',
-               'dbay_20200904_sample_1',
-               'dbay_20200906_sample_1',
-               'icy_20200901_sample_1',
-               'icy_20200904_sample_1',
-               'dbay_20210829_sample_1',
-               'icy_20210829_sample_1',
-               'icy_20210831_sample_1')
+survey_id <- c(#'bear_20240811_sample_1',
+               'harvard_20240812_sample_1',
+               #'ellsworth_20240812_sample_1',
+               #'columbia_20240812_sample_1',
+               #'chenega_20240812_sample_1',
+               #'ellsworth_20240813_sample_1',
+               #'columbia_20240813_sample_1',
+               #'bear_20240813_sample_1',
+               'dbay_20240814_sample_1'#,
+               #'icy_20240816_sample_1',
+               #'icy_20240818_sample_1',
+               #'dbay_20240820_sample_1'
+               )
 
 # Create functions -----------------------------------------------
 # Function to install packages needed
