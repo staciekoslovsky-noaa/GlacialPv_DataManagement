@@ -50,8 +50,28 @@ RPostgreSQL::dbSendQuery(con, "CREATE INDEX IF NOT EXISTS index_detection_id ON 
 RPostgreSQL::dbSendQuery(con, "CREATE INDEX IF NOT EXISTS index_detection_id ON surv_pv_gla.tbl_detections_processed_rgb(detection_id)")
 
 # Identify cross-camera view duplicates and mark as such in tbl_detections_processed_rgb and geo_detections
-dupes <- RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates")
+## 2020
+dupes <- RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates_2020")
+for (i in 1:nrow(dupes)){
+  RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.geo_detections SET qaqc_duplicate = \'dupe_xcamera\' 
+                         WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
+  
+  RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.tbl_detections_processed_rgb SET qaqc_duplicate = \'dupe_xcamera\' 
+                         WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
+}
 
+## 2021
+dupes <- RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates_2021")
+for (i in 1:nrow(dupes)){
+  RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.geo_detections SET qaqc_duplicate = \'dupe_xcamera\' 
+                         WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
+  
+  RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.tbl_detections_processed_rgb SET qaqc_duplicate = \'dupe_xcamera\' 
+                         WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
+}
+
+## 2024
+dupes <- RPostgreSQL::dbGetQuery(con, "SELECT * FROM surv_pv_gla.qaqc_cocoa_xcamera_duplicates_2024")
 for (i in 1:nrow(dupes)){
   RPostgreSQL::dbSendQuery(con, paste0("UPDATE surv_pv_gla.geo_detections SET qaqc_duplicate = \'dupe_xcamera\' 
                          WHERE detection_id = \'", dupes$duplicate_detection[i], "\'"))
