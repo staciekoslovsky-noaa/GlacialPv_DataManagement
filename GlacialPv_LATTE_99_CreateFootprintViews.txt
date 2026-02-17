@@ -82,7 +82,8 @@ SELECT row_number() OVER (ORDER BY a.survey_id, a.image_name)::integer AS id,
     a.camera,
     a.seals::integer AS seals,
         CASE
-            WHEN row_number() OVER (PARTITION BY a.survey_id ORDER BY a.survey_id, a.image_name)::integer = 1 THEN total.num_total - suppressed.num_suppressed
+            WHEN row_number() OVER (PARTITION BY a.survey_id ORDER BY a.survey_id, a.image_name)::integer = 1 
+				THEN total.num_total - (CASE WHEN suppressed.num_suppressed IS NULL THEN 0 ELSE suppressed.num_suppressed END)
             ELSE 0::numeric
         END::integer AS total,
     a.geom
